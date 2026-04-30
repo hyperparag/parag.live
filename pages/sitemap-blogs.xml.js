@@ -1,6 +1,6 @@
 //pages/sitemap.xml.js
 const EXTERNAL_DATA_URL =
-  "https://paraglive-backend.vercel.app/api/products/sitemap";
+  "https://paraglive-backend.vercel.app/api/blogs/sitemap";
 
 function generateSiteMap(posts) {
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -12,7 +12,7 @@ function generateSiteMap(posts) {
          .map((id) => {
            return `
        <url>
-           <loc>${`https://parag.live/post/details/${id?._id}`}</loc>
+           <loc>${`https://www.parag.live/blog/${id?.permalink}`}</loc>
        </url>
        `;
          })

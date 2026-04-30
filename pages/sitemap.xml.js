@@ -1,38 +1,2416 @@
-//pages/sitemap.xml.js
-const EXTERNAL_DATA_URL =
-  "https://paraglive-backend.vercel.app/api/blogs/sitemap";
-
-function generateSiteMap(posts) {
+const generateSiteMap = () => {
   return `<?xml version="1.0" encoding="UTF-8"?>
-     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-       <!--We manually set the two URLs we know already-->
+  <!--	created with www.mysitemapgenerator.com	-->
+  <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://www.parag.live/</loc>
+ 
+<priority>0.4</priority>
+</url>
+<url>
+<loc>https://www.parag.live/blogs</loc>
+ 
+ 
+</url>
+<url>
+<loc>https://www.parag.live/login</loc>
 
-       ${posts
-
-         .map((id) => {
-           return `
-       <url>
-           <loc>${`https://adbacklist.com/blog/${id?.permalink}`}</loc>
-       </url>
-       `;
-         })
-         .join("")}
-     </urlset>
-   `;
-}
+</url>
+<url>
+  <loc>https://www.parag.live/register</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Auburn</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Birmingham</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dothan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Gadsden</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Huntsville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mobile</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Montgomery</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Muscle%20Shoals</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tuscaloosa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Anchorage</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fairbanks</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Juneau</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kenai%20Peninsula</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Flagstaff/Sedona</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mohave%20County</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Phoenix</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Prescott</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Show%20Low</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sierra%20Vista</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tucson</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Yuma</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fayetteville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fort%20Smith</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Jonesboro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Little%20Rock</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bakersfield</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chico</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fresno</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Humboldt%20County</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Imperial%20County</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Inland%20Empire</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Long%20Beach</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Los%20Angeles</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mendocino</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Merced</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Modesto</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Monterey</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/North%20Bay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oakland/East%20Bay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Orange%20County</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Palm%20Springs</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Palmdale/Lancaster</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Palo%20Alto</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Redding</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sacramento</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Diego</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Fernando%20Valley</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Francisco</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Gabriel%20Valley</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Jose</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Luis%20Obispo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Mateo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santa%20Barbara</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cruz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santa%20Maria</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Siskiyou</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Stockton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Susanville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ventura</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Visalia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Boulder</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Colorado%20Springs</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Denver</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fort%20Collins</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pueblo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rockies</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Western%20Slope</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bridgeport</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eastern%20Connecticut</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hartford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/New%20Haven</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Northwest%20Connecticut</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Delaware</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Washington%20DC</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Daytona</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fort%20Lauderdale</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fort%20Myers</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Gainesville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Jacksonville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Keys</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lakeland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Miami</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ocala</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Okaloosa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Orlando</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Palm%20Bay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Panama%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pensacola</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sarasota/Bradenton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Space%20Coast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St.%20Augustine</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tallahassee</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tampa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Treasure%20Coast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/West%20Palm%20Beach</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Albany</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Athens</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Atlanta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Augusta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brunswick</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Columbus</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Macon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Northwest%20Georgia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Savannah</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Statesboro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Valdosta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hawaii</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Boise</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/East%20Idaho</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lewiston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Twin%20Falls</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Carbondale</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chambana</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chicago</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Decatur</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/La%20Salle%20County</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mattoon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Peoria</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rockford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Springfield</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Western%20Illinois</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bloomington</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Evansville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ft%20Wayne</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Indianapolis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kokomo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lafayette</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Muncie</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Richmond</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/South%20Bend</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Terre%20Haute</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ames</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cedar%20Rapids</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Desmoines</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dubuque</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fort%20Dodge</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Iowa%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mason%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Quad%20Cities</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sioux%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Southeast%20Iowa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Waterloo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lawrence</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Manhattan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Salina</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Topeka</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wichita</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bowling%20Green</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eastern%20Kentucky</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lexington</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Louisville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Owensboro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Western%20Kentucky</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Alexandria</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Baton%20Rouge</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Houma</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lake%20Charles</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Monroe</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/New%20Orleans</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Shreveport</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Maine</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Annapolis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Baltimore</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cumberland%20Valley</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eastern%20Shore</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Frederick</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Western%20Maryland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Boston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brockton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cape%20Cod</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lowell</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/South%20Coast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Worcester</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ann%20Arbor</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Battle%20Creek</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Central%20Michigan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Detroit</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Flint</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Grand%20Rapids</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Holland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Jackson</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kalamazoo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lansing</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Muskegon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Northern%20Michigan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Port%20Huron</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Saginaw</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Southwest%20Michigan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Upper%20Peninsula</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bemidji</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brainerd</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Duluth</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mankato</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Minneapolis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rochester</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St.%20Cloud</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Biloxi</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hattiesburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Meridian</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/North%20Mississippi</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Southwest%20Mississippi</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Columbia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Joplin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kansas%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kirksville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lake%20Of%20The%20Ozarks</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Southeast%20Missouri</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St%20Joseph</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St.%20Louis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Billings</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bozeman</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Butte</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Great%20Falls</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Helena</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kalispell</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Missoula</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Grand%20Island</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lincoln</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/North%20Platte</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Omaha</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Scottsbluff</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Elko</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Las%20Vegas</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Reno</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/New%20Hampshire</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Central%20Jersey</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Jersey%20Shore</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lakewood</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/North%20Jersey</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/South%20Jersey</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Albuquerque</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Clovis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Farmington</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Las%20Cruces</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Roswell</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santa%20Fe</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Binghamton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bronx</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brooklyn</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Buffalo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Catskills</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chautauqua</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Elmira</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fairfield</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Finger%20Lakes</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Glens%20Falls</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hudson%20Valley</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ithaca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Long%20Island</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/New%20York</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oneonta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Plattsburgh</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Potsdam</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Queens</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Staten%20Island</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Syracuse</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Twin%20Tiers</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Utica</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Watertown</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Westchester</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Asheville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Boone</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Charlotte</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eastern</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Greensboro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hickory</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/High%20Point</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Outer%20Banks</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Raleigh-Durham</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wilmington</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Winston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bismarck</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fargo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Grand%20Forks</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Minot</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Akron-Canton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ashtabula</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chillicothe</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cincinnati</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cleveland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dayton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Huntington</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lima-Findlay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mansfield</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sandusky</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Toledo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tuscarawas%20County</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Youngstown</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cambridge</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lawton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Norman</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oklahoma%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Stillwater</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tulsa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bend</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Corvallis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/East%20Oregon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eugene</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Klamath%20Falls</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Medford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oregon%20Coast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Portland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Roseburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Salem</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Allentown</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Altoona</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chambersburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Erie</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Harrisburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lancaster</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Meadville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Penn%20State</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Philadelphia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pittsburgh</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Poconos</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Reading</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Scranton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Williamsport</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/York</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Providence</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Charleston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Florence</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Greenville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hilton%20Head</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Myrtle%20Beach</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Aberdeen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pierre</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rapid%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sioux%20Falls</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chattanooga</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Clarksville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cookeville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Johnson%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Knoxville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Memphis</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nashville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tri-Cities</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Abilene</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Amarillo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Austin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Beaumont</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brownsville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/College%20Station</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Corpus%20Christi</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dallas</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Del%20Rio</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Denton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/El%20Paso</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fort%20Worth</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Galveston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Houston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Killeen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Laredo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lubbock</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mcallen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Odessa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Antonio</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Marcos</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Texarkana</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Texoma</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tyler</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Victoria</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Waco</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wichita%20Falls</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Logan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ogden</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Provo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Salt%20Lake%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St.%20George</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Vermont</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Charlottesville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Danville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fredericksburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Harrisonburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lynchburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/New%20River%20Valley</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Roanoke</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Southwest%20Virginia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Virginia%20Beach</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bellingham</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Moses%20Lake</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Olympia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pullman</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Seattle</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Spokane</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tacoma</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wenatchee</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Yakima</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Morgantown</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Parkersburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Southern%20West%20Virginia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wheeling</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Appleton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eau%20Claire</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Green%20Bay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Janesville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/La%20Crosse</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Madison</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Milwaukee</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Racine</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sheboygan</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wausau</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wyoming</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Calgary</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Edmonton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ft%20Mcmurray</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Grande%20Prairie</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lethbridge</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Medicine%20Hat</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Red%20Deer</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St.%20Albert</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Abbotsford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cariboo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Comox%20Valley</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cranbrook</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kamloops</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kelowna</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nanaimo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Peace%20River</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Prince%20George</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Skeena</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sunshine%20Coast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Vancouver</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Whistler</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brandon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Winnipeg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fredericton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Moncton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/St.%20John</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Newfoundland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Labrador</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Northwest</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Territories</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nova%20Scotia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Barrie</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Belleville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brantford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chatham</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cornwall</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Guelph</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hamilton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kingston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kitchener</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/London</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Niagara</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ottawa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Owen%20Sound</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Peterborough</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sarnia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sault%20Ste%20Marie</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sudbury</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Thunder%20Bay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Toronto</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Windsor</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Montreal</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Quebec%20City</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Saguenay</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sherbrooke</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Trois-Rivieres</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Prince%20Albert</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Regina</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Saskatoon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Yukon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tirane</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Graz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Innsbruck</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Linz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Salzburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wien</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Minsk</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Antwerp</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bruges</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brussel</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Charleroi</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ghent</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Liege</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Namur</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sarajevo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Balgariya</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Zagreb</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Limassol</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nicosia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brno</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ceske-Budeovice</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Liberec</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Olomouc</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ostrava</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Plzen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Praha</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Aarhus</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kobenhavn</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tallinn</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Helsinki</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bordeaux</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bretagne</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Corse</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Departements-Doutre-Mer</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Grenoble</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lille</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Loire</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lyon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Marseille</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Montpellier</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nantes</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nice</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Normandie</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Paris</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Strasbourg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Toulouse</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Berlin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bodensee</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bremen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dortmund</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dresden</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/D%C3%BCsseldorf</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Essen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Freiburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hannover</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Heidelberg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kaiserslautern</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Karlsruhe</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kiel</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Koln</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/L%C3%BCbeck</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mannheim</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/M%C3%BCnchen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/N%C3%BCrnberg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rostock</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Saarbr%C3%BCcken</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Schwerin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Stuttgart</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Crete</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Patras</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Thessaloniki</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Budapest</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Debrecen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Miskolc</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Szeged</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Iceland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cork</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Derry</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dublin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Galway</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Limerick</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lisburn</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Waterford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bari</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bologna</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brescia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Calabria</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Firenze</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Forli-Cesena</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Genova</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Milano</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Napoli</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Perugia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Roma</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sardegna</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sicilia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Torino</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Trieste</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Venezia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Prishtin%C3%AB</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/R%C4%ABga</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Vilnius</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Luxembourg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/%D0%A1%D0%BA%D0%BE%D0%BF%D1%98%D0%B5</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Malta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Monaco</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Podgorica</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Amsterdam</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Den%20Haag</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Eindhoven</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Groningen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rotterdam</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Utrecht</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bergen</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oslo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bia%C5%82ystok</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bydgoszcz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Gda%C5%84sk</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Katowice</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Krak%C3%B3w</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/%C5%81%C3%B3d%C5%BA</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lublin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pozna%C5%84</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Szczecin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Warszawa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wroc%C5%82aw</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Braga</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Coimbra</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Faro-Algarve</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lisboa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Madeira</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Porto</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bra%C8%99ov</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bucuresti</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cluj-Napoca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Constan%C8%9Ba</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Craiova</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Gala%C8%9Bi</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ia%C8%99i</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Timi%C8%99oara</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Moskva</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sankt-Peterburg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Beograd</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bratislava</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ko%C5%A1ice</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Alicante</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Barcelona</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bilbao</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/C%C3%A1diz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Canarias</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Coru%C3%B1a</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Granada</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ibiza</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Madrid</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/M%C3%A1laga</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mallorca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Murcia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oviedo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Salamanca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Sebasti%C3%A1n</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sevilla</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Valencia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Valladolid</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Zaragoza</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/G%C3%B6teborg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Helsingborg</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/J%C3%B6nk%C3%B6ping</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Malm%C3%B6</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Norrk%C3%B6ping</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/%C3%96rebro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Stockholm</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ume%C3%A5</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Uppsala</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/V%C3%A4ster%C3%A5s</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Basel</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bern</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Gen%C3%A8ve</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lausanne</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lugano</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Z%C3%BCrich</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dnipropetrovsk</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Donetsk</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kharkiv</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kyiv</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lviv</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Zaporizhia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bath</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Belfast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brighton</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bristol</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Devon</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/East%20Anglia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/East%20Midlands</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Edinburgh</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Essex</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Glasgow</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hampshire</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Kent</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Leeds</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Liverpool</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Manchester</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Newcastle</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oxford</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sheffield</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wales</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Adelaide</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brisbane</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cairns</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Canberra</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Darwin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Gold%20Coast</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hobart</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Launceston</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Melbourne</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Perth</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Sydney</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Toowoomba</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Townsville</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wollongong</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Guam</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Auckland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Christchurch</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dunedin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Invercargill</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Napier-Hastings</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Nelson</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Northland</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tauranga</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Wellington</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Buenos%20Aires</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cordoba</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Laplata</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mendoza</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rosario</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Salta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/South%20Argentina</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tucuman</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Belize</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/La%20Paz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bahia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Belem</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Belo%20Horizonte</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Brasilia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Curitiba</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Fortaleza</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Goi%C3%A2nia</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Manaus</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Porto%20Alegre</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Recife</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rio%20De%20Janeiro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/S%C3%A3o%20Paulo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bahamas</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Dominican%20Republic</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Jamaica</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Other%20Caribbean</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Puerto%20Rico</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Virgin%20Islands</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Antofagasta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chill%C3%A1n</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Concepcion</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Iquique</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/La%20Serena</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Montt</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Rancagua</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santiago</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Talca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Temuco</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Valparaiso</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Barranquilla</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bogota</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Bucaramanga</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cali</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cartagena</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cucuta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ibagu%C3%A9</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Medellin</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Neiva</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pasto</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Pereira</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santa%20Marta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Costa%20Rica</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ambato</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cuenca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Esmeraldas</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Guayaquil</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Machala</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Manta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Quito</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santo%20Domingo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Miguel</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Salvador</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Santa%20Ana</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Guatemala</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Georgetown</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tegucigalpa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Acapulco</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Baja%20California</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chihuahua</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ciudad%20Ju%C3%A1rez</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Guadalajara</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Guanajuato</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hermosillo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Hidalgo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Mazatl%C3%A1n</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Monterrey</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Oaxaca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Puebla</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Puerto%20Vallarta</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Quer%C3%A9taro</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/San%20Luis%20Potos%C3%AD</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Tijuana</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Toluca</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Vera%20Cruz</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Yucat%C3%A1n</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Managua</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Ciudad%20De%20Panam%C3%A1</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Col%C3%B3n</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/David</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Asunci%C3%B3n</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Arequipa</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chiclayo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Chimbote</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Cusco</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Huancayo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Iquitos</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Lima</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Piura</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Trujillo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Paramaribo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Montevideo</loc>
+</url>
+<url>
+  <loc>https://www.parag.live/Caracas</loc>
+</url>
+</urlset>
+`;
+};
 
 function SiteMap() {
   // getServerSideProps will do the heavy lifting
 }
 
 export async function getServerSideProps({ res }) {
-  const request = await fetch(EXTERNAL_DATA_URL);
-
-  const posts = await request.json();
-  const news = posts.data;
-
-  // We generate the XML sitemap with the posts data
-  const sitemap = generateSiteMap(news);
+  const sitemap = generateSiteMap(res);
 
   res.setHeader("Content-Type", "text/xml");
   // we send the XML to the browser

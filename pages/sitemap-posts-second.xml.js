@@ -12,7 +12,7 @@ function generateSiteMap(posts) {
          .map((id) => {
            return `
        <url>
-           <loc>${`https://parag.live/post/details/${id?.category}/${id?._id}`}</loc>
+           <loc>${`https://parag.live/post/details/${id?._id}`}</loc>
        </url>
        `;
          })
