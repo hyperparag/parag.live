@@ -62,7 +62,17 @@ const Footer = () => {
       }}
     >
       {/* Nav links */}
-      <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "24px", marginBottom: "32px" }}>
+      <div
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "24px",
+          marginBottom: "32px",
+        }}
+      >
         {navLinks.map((l) => (
           <Link
             key={l.href}
@@ -75,7 +85,9 @@ const Footer = () => {
               transition: "color 0.2s",
             }}
             onMouseEnter={(e) => (e.target.style.color = "var(--accent)")}
-            onMouseLeave={(e) => (e.target.style.color = "var(--text-secondary)")}
+            onMouseLeave={(e) =>
+              (e.target.style.color = "var(--text-secondary)")
+            }
           >
             {l.label}
           </Link>
@@ -91,7 +103,9 @@ const Footer = () => {
               transition: "color 0.2s",
             }}
             onMouseEnter={(e) => (e.target.style.color = "var(--accent)")}
-            onMouseLeave={(e) => (e.target.style.color = "var(--text-secondary)")}
+            onMouseLeave={(e) =>
+              (e.target.style.color = "var(--text-secondary)")
+            }
           >
             Buy Credit
           </Link>
@@ -99,10 +113,23 @@ const Footer = () => {
       </div>
 
       {/* Divider */}
-      <div style={{ maxWidth: "800px", margin: "0 auto 24px", borderTop: "1px solid var(--border)" }} />
+      <div
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto 24px",
+          borderTop: "1px solid var(--border)",
+        }}
+      />
 
       {/* Social icons */}
-      <div style={{ display: "flex", justifyContent: "center", gap: "12px", marginBottom: "24px" }}>
+      {/* <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "12px",
+          marginBottom: "24px",
+        }}
+      >
         {socialLinks.map((s) => {
           const Icon = s.icon;
           return (
@@ -134,14 +161,27 @@ const Footer = () => {
                 e.currentTarget.style.background = "transparent";
               }}
             >
-              <Icon style={{ width: "20px", height: "20px", display: "block", color: "inherit" }} />
+              <Icon
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  display: "block",
+                  color: "inherit",
+                }}
+              />
             </Link>
           );
         })}
-      </div>
+      </div> */}
 
       {/* Copyright */}
-      <p style={{ textAlign: "center", fontSize: "0.75rem", color: "var(--text-muted)" }}>
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "0.75rem",
+          color: "var(--text-muted)",
+        }}
+      >
         Copyright &copy; 2009 &ndash; 2026. All rights reserved.
       </p>
     </footer>

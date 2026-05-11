@@ -17,8 +17,9 @@ const myLink = process.env.NEXT_PUBLIC_OFFERLINK;
 const PostList = () => {
   const router = useRouter();
   const [layout, setLayout] = useState("list");
-  const [freeCityPost, setFreeCityPost] = useState([]);
-  const [premiumCityPost, setPremiumCityPost] = useState([]);
+  const [regularPosts, setRegularPosts] = useState([]);
+  const [boostedPosts, setBoostedPosts] = useState([]);
+  const [premiumPosts, setPremiumPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -37,14 +38,9 @@ const PostList = () => {
       setLinks(response.data.links?.[0]);
       setPage(response.data.pages);
       setGallery(response.data.data.products);
-      const premiumPost = response.data.data.products?.filter(
-        (a) => a.isPremium == true,
-      );
-      setPremiumCityPost(premiumPost);
-      const freePost = response.data.data.products?.filter(
-        (a) => a.isPremium == false,
-      );
-      setFreeCityPost(freePost);
+      setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
+      setPremiumPosts(response.data.data.products?.filter((a) => !a.boosted && a.isPremium));
+      setRegularPosts(response.data.data.products?.filter((a) => !a.boosted && !a.isPremium));
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -69,8 +65,9 @@ const PostList = () => {
     }));
   }
 
-  const groupedData = groupByDate(freeCityPost);
-  const groupedData2 = groupByDate(premiumCityPost);
+  const groupedData = groupByDate(boostedPosts);
+  const groupedData2 = groupByDate(premiumPosts);
+  const groupedData3 = groupByDate(regularPosts);
 
   useEffect(() => {
     setLoading(true);
@@ -83,13 +80,14 @@ const PostList = () => {
   let content;
   if (layout == "list")
     content = (
-      <List data1={groupedData} data2={groupedData2} category={category} />
+      <List data1={groupedData} data2={groupedData2} data3={groupedData3} category={category} />
     );
   if (layout == "text")
     content = (
       <OnlyTextList
         data1={groupedData}
         data2={groupedData2}
+        data3={groupedData3}
         category={category}
       />
     );

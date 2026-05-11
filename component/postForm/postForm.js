@@ -677,7 +677,8 @@ const PostForm = () => {
 
     if (router.query.name[0] == "local-ads") {
       data.cities = [router.query.name[1]];
-      data.isPremium = true;
+      data.isPremium = false;
+      data.isApproved = true;
     } else {
       let i = JSON.parse(localStorage.getItem("cities"));
       data.isApproved = true;
@@ -688,18 +689,18 @@ const PostForm = () => {
     if (local == 0.0) data.premiumDay = 0;
     if (local == 7) {
       data.premiumDay = 7 * 24;
-      data.isPremium = false;
+      data.isPremium = true;
       data.isApproved = true;
     }
     if (local == 10) {
       data.premiumDay = 14 * 24;
-      data.isPremium = false;
+      data.isPremium = true;
       data.isApproved = true;
     }
     if (local == 15) {
       data.premiumDay = 30 * 24;
       data.isApproved = true;
-      data.isPremium = false;
+      data.isPremium = true;
     }
 
     data.posterId = session?.user?.id;

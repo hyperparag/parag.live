@@ -161,7 +161,7 @@ const Footer = () => {
         />
 
         {/* Social icons */}
-        <div
+        {/* <div
           style={{
             display: "flex",
             justifyContent: "center",
@@ -206,7 +206,7 @@ const Footer = () => {
               </Link>
             );
           })}
-        </div>
+        </div> */}
 
         {/* Copyright */}
         <p

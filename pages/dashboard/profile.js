@@ -259,8 +259,8 @@ const Dashboards = () => {
                     .includes(input.toLowerCase())
                 }
                 options={[
-                  { value: "true", label: "Not Premium" },
-                  { value: "false", label: "Premium" },
+                  { value: "false", label: "Free" },
+                  { value: "true", label: "Boosted" },
                 ]}
               />
             </div>
@@ -362,7 +362,7 @@ const Dashboards = () => {
                             border: "1px solid var(--border)",
                           }}
                         >
-                          Premium
+                          Boost
                         </th>
                         <th
                           style={{
@@ -430,33 +430,44 @@ const Dashboards = () => {
                               textAlign: "center",
                             }}
                           >
-                            {a.isPremium ? (
-                              <span
-                                style={{
-                                  background: "var(--success)",
-                                  color: "#fff",
-                                  padding: "2px 10px",
-                                  borderRadius: "20px",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 600,
-                                }}
-                              >
-                                No
-                              </span>
-                            ) : (
-                              <span
-                                style={{
-                                  background: "var(--error)",
-                                  color: "#fff",
-                                  padding: "2px 10px",
-                                  borderRadius: "20px",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 600,
-                                }}
-                              >
-                                Yes
-                              </span>
-                            )}
+                            {(() => {
+                              const isMultiCity = a.isPremium && !a.boostExpiresAt;
+                              const boostExpiry = a.boostExpiresAt ? new Date(a.boostExpiresAt) : null;
+                              const boostActive = boostExpiry && boostExpiry > new Date();
+                              const boostExpired = boostExpiry && boostExpiry <= new Date();
+
+                              if (isMultiCity) {
+                                return (
+                                  <span style={{ background: "var(--text)", color: "var(--surface)", padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 700, display: "inline-block", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                                    Premium
+                                  </span>
+                                );
+                              }
+                              if (boostActive) {
+                                return (
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px" }}>
+                                    <span style={{ background: "var(--text)", color: "var(--surface)", padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                                      Boosted
+                                    </span>
+                                    <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>
+                                      until {boostExpiry.toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                );
+                              }
+                              if (boostExpired) {
+                                return (
+                                  <span style={{ background: "var(--surface-2)", color: "var(--text-muted)", padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 600, border: "1px solid var(--border)", display: "inline-block", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                                    Expired
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span style={{ background: "transparent", color: "var(--text-muted)", padding: "2px 10px", borderRadius: "4px", fontSize: "0.7rem", fontWeight: 600, border: "1px solid var(--border)", display: "inline-block", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                                  Free
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td
                             style={{

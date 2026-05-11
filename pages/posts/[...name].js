@@ -1,4 +1,4 @@
-import Footer from "@/component/footer/footer";
+import Footer from "@/component/footer/footer2";
 import Header from "@/component/header/header";
 import PostForm from "@/component/postForm/postForm";
 import React from "react";
