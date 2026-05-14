@@ -705,12 +705,19 @@ const PostForm = () => {
 
     data.posterId = session?.user?.id;
 
-    await fetch("https://paraglive-backend.vercel.app/api/products", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then((e) => e.json())
+    await Promise.all([
+      fetch("https://paraglive-backend.vercel.app/api/products", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+      fetch("https://skipthegame-live-backend.vercel.app/api/products", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    ])
+      .then(([e]) => e.json())
       .then((t) => {
         localStorage.removeItem("cities");
         const newCredit = users?.credit - local?.toFixed(2);
