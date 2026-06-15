@@ -301,18 +301,19 @@ a {
 .ant-upload-list-item-thumbnail img {
   object-fit: cover !important;
 }
-.ant-pagination-item-active {
-  border-color: var(--accent) !important;
-}
-.ant-pagination-item-active a {
-  color: var(--accent) !important;
-}
 .ant-pagination-item {
   background: var(--surface) !important;
   border-color: var(--border) !important;
 }
 .ant-pagination-item a {
   color: var(--text) !important;
+}
+.ant-pagination-item.ant-pagination-item-active {
+  background: var(--accent-dim) !important;
+  border-color: var(--accent) !important;
+}
+.ant-pagination-item.ant-pagination-item-active a {
+  color: var(--accent) !important;
 }
 .ant-pagination-prev .ant-pagination-item-link,
 .ant-pagination-next .ant-pagination-item-link {

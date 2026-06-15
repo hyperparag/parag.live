@@ -468,7 +468,7 @@ const Details = () => {
                 marginBottom: "16px",
               }}
             >
-              Most Popular Ads
+              Related Ads
             </h2>
           ) : (
             ""

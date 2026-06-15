@@ -31,22 +31,22 @@ const Footer = () => {
 
   const socialLinks = [
     {
-      href: "https://www.facebook.com/profile.php?id=100091135910066",
+      href: "#",
       icon: AiFillFacebook,
       label: "Facebook",
     },
     {
-      href: "https://www.instagram.com/adbacklist/",
+      href: "https://www.instagram.com/#/",
       icon: AiFillInstagram,
       label: "Instagram",
     },
     {
-      href: "https://twitter.com/Adbacklist",
+      href: "https://twitter.com/#",
       icon: AiFillTwitterSquare,
       label: "Twitter",
     },
     {
-      href: "https://www.pinterest.com/adbacklist/",
+      href: "https://www.pinterest.com/#/",
       icon: BsPinterest,
       label: "Pinterest",
     },

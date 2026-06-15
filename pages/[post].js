@@ -39,8 +39,12 @@ const PostList = () => {
       setPage(response.data.pages);
       setGallery(response.data.data.products);
       setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
-      setPremiumPosts(response.data.data.products?.filter((a) => !a.boosted && a.isPremium));
-      setRegularPosts(response.data.data.products?.filter((a) => !a.boosted && !a.isPremium));
+      setPremiumPosts(
+        response.data.data.products?.filter((a) => !a.boosted && a.isPremium),
+      );
+      setRegularPosts(
+        response.data.data.products?.filter((a) => !a.boosted && !a.isPremium),
+      );
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -80,7 +84,12 @@ const PostList = () => {
   let content;
   if (layout == "list")
     content = (
-      <List data1={groupedData} data2={groupedData2} data3={groupedData3} category={category} />
+      <List
+        data1={groupedData}
+        data2={groupedData2}
+        data3={groupedData3}
+        category={category}
+      />
     );
   if (layout == "text")
     content = (
@@ -429,6 +438,7 @@ const PostList = () => {
                     showSizeChanger={false}
                     pageSize={35}
                     defaultCurrent={current}
+                    current={current}
                     onChange={onChange}
                     total={page}
                   />

@@ -74,11 +74,37 @@ const ContactUs = () => {
             style={{
               color: "var(--text-secondary)",
               lineHeight: 1.8,
-              marginBottom: "32px",
+              marginBottom: "4px",
             }}
           >
             Our live representatives are available 24/7 to assist you with any
             and all questions you may have.
+          </p>
+
+          <p
+            style={{
+              color: "var(--text)",
+              fontWeight: 600,
+              marginBottom: "4px",
+            }}
+          >
+            Email Support
+          </p>
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              lineHeight: 1.8,
+              marginBottom: "32px",
+            }}
+          >
+            For any questions or assistance, email us at{" "}
+            <a
+              href='mailto:support@parag.live'
+              style={{ color: "var(--accent)" }}
+            >
+              support@parag.live
+            </a>
+            .
           </p>
 
           <h2

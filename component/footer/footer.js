@@ -107,7 +107,7 @@ const Footer = () => {
         /> */}
 
         {/* SEO links */}
-        <div
+        {/* <div
           style={{
             display: "flex",
             flexWrap: "wrap",
@@ -150,7 +150,7 @@ const Footer = () => {
               {l.label}
             </Link>
           ))}
-        </div>
+        </div> */}
 
         <hr
           style={{

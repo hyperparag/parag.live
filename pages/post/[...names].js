@@ -34,8 +34,12 @@ const Ahad = () => {
       setGallery(response.data.data.products);
 
       setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
-      setPremiumPosts(response.data.data.products?.filter((a) => !a.boosted && a.isPremium));
-      setRegularPosts(response.data.data.products?.filter((a) => !a.boosted && !a.isPremium));
+      setPremiumPosts(
+        response.data.data.products?.filter((a) => !a.boosted && a.isPremium),
+      );
+      setRegularPosts(
+        response.data.data.products?.filter((a) => !a.boosted && !a.isPremium),
+      );
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -77,10 +81,18 @@ const Ahad = () => {
 
   let content;
   if (layout == "list") {
-    content = <List data1={groupedData} data2={groupedData2} data3={groupedData3} />;
+    content = (
+      <List data1={groupedData} data2={groupedData2} data3={groupedData3} />
+    );
   }
   if (layout == "text") {
-    content = <OnlyTextList data1={groupedData} data2={groupedData2} data3={groupedData3} />;
+    content = (
+      <OnlyTextList
+        data1={groupedData}
+        data2={groupedData2}
+        data3={groupedData3}
+      />
+    );
   }
   if (layout == "gallery") {
     content = <Gallery data1={gallery} />;
