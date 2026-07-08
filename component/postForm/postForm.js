@@ -595,9 +595,9 @@ const PostForm = () => {
 
   const topForDays = ({ target: { value } }) => {
     setValue1(value);
-    let e = JSON.parse(localStorage?.getItem("cities"));
-    if (e?.query?.name?.[0] == "multiple-city-ads") {
-      setLocal(0.05 + value * e.length);
+    if (router.query.name?.[0] == "multiple-city-ads") {
+      let e = JSON.parse(localStorage?.getItem("cities"));
+      setLocal((0.05 + value) * (e?.length || 0));
     } else {
       setLocal(0.0 + value);
     }
@@ -686,18 +686,18 @@ const PostForm = () => {
       data.cities = i;
     }
 
-    if (local == 0.0) data.premiumDay = 0;
-    if (local == 7) {
+    if (value1 == 0) data.premiumDay = 0;
+    if (value1 == 7) {
       data.premiumDay = 7 * 24;
       data.isPremium = true;
       data.isApproved = true;
     }
-    if (local == 10) {
+    if (value1 == 10) {
       data.premiumDay = 14 * 24;
       data.isPremium = true;
       data.isApproved = true;
     }
-    if (local == 15) {
+    if (value1 == 15) {
       data.premiumDay = 30 * 24;
       data.isApproved = true;
       data.isPremium = true;
@@ -999,30 +999,28 @@ const PostForm = () => {
           )}
         </div>
 
-        {router.query.name?.[0] != "multiple-city-ads" && (
-          <div
-            className='pt-8'
-            style={{ borderTop: "1px solid var(--border)" }}
+        <div
+          className='pt-8'
+          style={{ borderTop: "1px solid var(--border)" }}
+        >
+          <p
+            className='text-sm font-semibold mb-2'
+            style={{ color: "var(--text)" }}
           >
-            <p
-              className='text-sm font-semibold mb-2'
-              style={{ color: "var(--text)" }}
+            Boost your ad{" "}
+            <span
+              className='font-normal'
+              style={{ color: "var(--text-muted)" }}
             >
-              Boost your ad{" "}
-              <span
-                className='font-normal'
-                style={{ color: "var(--text-muted)" }}
-              >
-                (extra charge)
-              </span>
-            </p>
-            <Radio.Group
-              options={options}
-              onChange={topForDays}
-              value={value1}
-            />
-          </div>
-        )}
+              (extra charge)
+            </span>
+          </p>
+          <Radio.Group
+            options={options}
+            onChange={topForDays}
+            value={value1}
+          />
+        </div>
 
         <div className='pt-2'>
           {users?.credit < local ? (
