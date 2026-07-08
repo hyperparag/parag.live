@@ -17,7 +17,6 @@ const Ahad = () => {
   const [layout, setLayout] = useState("list");
   const [regularPosts, setRegularPosts] = useState([]);
   const [boostedPosts, setBoostedPosts] = useState([]);
-  const [premiumPosts, setPremiumPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -34,11 +33,8 @@ const Ahad = () => {
       setGallery(response.data.data.products);
 
       setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
-      setPremiumPosts(
-        response.data.data.products?.filter((a) => !a.boosted && a.isPremium),
-      );
       setRegularPosts(
-        response.data.data.products?.filter((a) => !a.boosted && !a.isPremium),
+        response.data.data.products?.filter((a) => !a.boosted),
       );
       setLoading(false);
     } catch (error) {
@@ -63,8 +59,7 @@ const Ahad = () => {
   }
 
   const groupedData = groupByDate(boostedPosts);
-  const groupedData2 = groupByDate(premiumPosts);
-  const groupedData3 = groupByDate(regularPosts);
+  const groupedData2 = groupByDate(regularPosts);
 
   useEffect(() => {
     setLoading(true);
@@ -81,17 +76,11 @@ const Ahad = () => {
 
   let content;
   if (layout == "list") {
-    content = (
-      <List data1={groupedData} data2={groupedData2} data3={groupedData3} />
-    );
+    content = <List data1={groupedData} data2={groupedData2} />;
   }
   if (layout == "text") {
     content = (
-      <OnlyTextList
-        data1={groupedData}
-        data2={groupedData2}
-        data3={groupedData3}
-      />
+      <OnlyTextList data1={groupedData} data2={groupedData2} />
     );
   }
   if (layout == "gallery") {

@@ -682,7 +682,7 @@ const PostForm = () => {
     } else {
       let i = JSON.parse(localStorage.getItem("cities"));
       data.isApproved = true;
-      data.isPremium = true;
+      data.isPremium = false;
       data.cities = i;
     }
 

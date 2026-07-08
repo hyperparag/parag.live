@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 
-const List = ({ data1, data2, data3, category }) => {
+const List = ({ data1, data2, category }) => {
   const router = useRouter();
 
   const AdCard = ({ b, city, tag }) => (
@@ -118,26 +118,8 @@ const List = ({ data1, data2, data3, category }) => {
     <div>
       {data1?.length > 0 && (
         <div style={{ marginBottom: "24px" }}>
-          <SectionHeader label='Boosted Ads' filled />
-          {data1.map((a, index) => (
-            <div key={index}>
-              {a.objects.map((b) => (
-                <AdCard
-                  key={b._id}
-                  b={b}
-                  city={router.query.post?.[0]}
-                  tag='Boosted'
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {data2?.length > 0 && (
-        <div style={{ marginBottom: "24px" }}>
           <SectionHeader label='Premium Ads' filled />
-          {data2.map((a, index) => (
+          {data1.map((a, index) => (
             <div key={index}>
               {a.objects.map((b) => (
                 <AdCard
@@ -152,10 +134,10 @@ const List = ({ data1, data2, data3, category }) => {
         </div>
       )}
 
-      {(data3?.length > 0 || (!data1?.length && !data2?.length)) && (
+      {(data2?.length > 0 || (!data1?.length && !data2?.length)) && (
         <>
           <SectionHeader label='Ads' />
-          {(data3 ?? []).map((a, index) => (
+          {(data2 ?? []).map((a, index) => (
             <div key={index}>
               {a.objects.map((b) => (
                 <AdCard key={b._id} b={b} city={router.query.post} />

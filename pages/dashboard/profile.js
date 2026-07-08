@@ -431,8 +431,6 @@ const Dashboards = () => {
                             }}
                           >
                             {(() => {
-                              const isMultiCity =
-                                a.isPremium && !a.boostExpiresAt;
                               const boostExpiry = a.boostExpiresAt
                                 ? new Date(a.boostExpiresAt)
                                 : null;
@@ -441,25 +439,6 @@ const Dashboards = () => {
                               const boostExpired =
                                 boostExpiry && boostExpiry <= new Date();
 
-                              if (isMultiCity) {
-                                return (
-                                  <span
-                                    style={{
-                                      background: "var(--text)",
-                                      color: "var(--surface)",
-                                      padding: "2px 10px",
-                                      borderRadius: "4px",
-                                      fontSize: "0.7rem",
-                                      fontWeight: 700,
-                                      display: "inline-block",
-                                      letterSpacing: "0.06em",
-                                      textTransform: "uppercase",
-                                    }}
-                                  >
-                                    Premium
-                                  </span>
-                                );
-                              }
                               if (boostActive) {
                                 return (
                                   <div
@@ -482,7 +461,7 @@ const Dashboards = () => {
                                         textTransform: "uppercase",
                                       }}
                                     >
-                                      Boosted
+                                      Premium
                                     </span>
                                     <span
                                       style={{

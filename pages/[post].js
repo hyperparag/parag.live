@@ -19,7 +19,6 @@ const PostList = () => {
   const [layout, setLayout] = useState("list");
   const [regularPosts, setRegularPosts] = useState([]);
   const [boostedPosts, setBoostedPosts] = useState([]);
-  const [premiumPosts, setPremiumPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -39,11 +38,8 @@ const PostList = () => {
       setPage(response.data.pages);
       setGallery(response.data.data.products);
       setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
-      setPremiumPosts(
-        response.data.data.products?.filter((a) => !a.boosted && a.isPremium),
-      );
       setRegularPosts(
-        response.data.data.products?.filter((a) => !a.boosted && !a.isPremium),
+        response.data.data.products?.filter((a) => !a.boosted),
       );
       setLoading(false);
     } catch (error) {
@@ -51,8 +47,8 @@ const PostList = () => {
       setLoading(false);
       setPage(0);
       setGallery([]);
-      setPremiumCityPost([]);
-      setFreeCityPost([]);
+      setBoostedPosts([]);
+      setRegularPosts([]);
     }
   }
 
@@ -70,8 +66,7 @@ const PostList = () => {
   }
 
   const groupedData = groupByDate(boostedPosts);
-  const groupedData2 = groupByDate(premiumPosts);
-  const groupedData3 = groupByDate(regularPosts);
+  const groupedData2 = groupByDate(regularPosts);
 
   useEffect(() => {
     setLoading(true);
@@ -87,7 +82,6 @@ const PostList = () => {
       <List
         data1={groupedData}
         data2={groupedData2}
-        data3={groupedData3}
         category={category}
       />
     );
@@ -96,7 +90,6 @@ const PostList = () => {
       <OnlyTextList
         data1={groupedData}
         data2={groupedData2}
-        data3={groupedData3}
         category={category}
       />
     );
