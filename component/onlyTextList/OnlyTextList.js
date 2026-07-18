@@ -61,7 +61,7 @@ const OnlyTextList = ({ data1, data2, category }) => {
         </div>
       )}
 
-      <SectionHeader label="Ads" />
+      <SectionHeader label="Regular Ads" />
       {data2.map((a, index) => (
         <div key={index}>
           <ul>

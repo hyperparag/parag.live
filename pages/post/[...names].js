@@ -43,8 +43,11 @@ const Ahad = () => {
   }
 
   function groupByDate(objects) {
+    const sorted = [...objects].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    );
     const groupedByDate = {};
-    objects.forEach((obj) => {
+    sorted.forEach((obj) => {
       const date = new Date(obj.createdAt).toDateString();
       if (!groupedByDate[date]) {
         groupedByDate[date] = [];
@@ -52,10 +55,9 @@ const Ahad = () => {
       groupedByDate[date].push(obj);
     });
 
-    return Object.entries(groupedByDate).map(([date, objects]) => ({
-      date,
-      objects,
-    }));
+    return Object.entries(groupedByDate)
+      .map(([date, objects]) => ({ date, objects }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
   }
 
   const groupedData = groupByDate(boostedPosts);
