@@ -30,25 +30,6 @@ const List = ({ data1, data2, category }) => {
         e.currentTarget.style.boxShadow = "none";
       }}
     >
-      {tag && (
-        <span
-          style={{
-            position: "absolute",
-            top: "6px",
-            right: "8px",
-            background: "var(--text)",
-            color: "var(--surface)",
-            fontSize: "0.6rem",
-            fontWeight: 700,
-            padding: "2px 8px",
-            borderRadius: "3px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}
-        >
-          {tag}
-        </span>
-      )}
       <img
         style={{
           width: "100px",
@@ -136,7 +117,7 @@ const List = ({ data1, data2, category }) => {
 
       {(data2?.length > 0 || (!data1?.length && !data2?.length)) && (
         <>
-          <SectionHeader label='Ads' />
+          <SectionHeader label='Regular Ads' />
           {(data2 ?? []).map((a, index) => (
             <div key={index}>
               {a.objects.map((b) => (
