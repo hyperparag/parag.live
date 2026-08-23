@@ -15,10 +15,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>parag is the best cheap escorts for Fun & Erotic Massage</title>
+        <title>Parag is the best cheap escorts for Fun & Erotic Massage</title>
         <meta
           name='description'
-          content='The Best female escort at Skip the Game. Best Cheap escorts alligator looking for Cheap & Tryst escort services. Find real female escort with skip da game'
+          content='The Best female escort at Parag. Best Cheap escorts alligator looking for Cheap & Tryst escort services. Find real female escort with Parag'
         />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link
