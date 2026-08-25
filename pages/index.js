@@ -28,7 +28,7 @@ export default function Home() {
         />{" "}
         <meta
           name='title'
-          content='parag is the best cheap escorts for Fun & Erotic Massage'
+          content='Parag is the best cheap escorts for Fun & Erotic Massage'
         />
         <meta name='keywords' content='' />
         <link rel='icon' href='/favicon.ico' />
