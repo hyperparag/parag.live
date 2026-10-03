@@ -12,6 +12,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
+import { api } from "@/component/utils/api";
+
 const myLink = process.env.NEXT_PUBLIC_OFFERLINK;
 
 const PostList = () => {
@@ -27,6 +29,7 @@ const PostList = () => {
   const [age, setAge] = useState("");
   const [category, setCategory] = useState("Women-Men");
   const [reload, setReload] = useState(false);
+  const [sideAds, setSideAds] = useState([]);
 
   async function getPosts() {
     try {
@@ -75,6 +78,30 @@ const PostList = () => {
     if (!router?.query?.post) return;
     else getPosts();
   }, [router?.query?.post, current, reload, category]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function getSideAds() {
+      try {
+        const response = await axios.get(
+          api(
+            `/api/sideads/category?category=${encodeURIComponent(
+              category ?? "",
+            )}&fallback=1&limit=4`,
+          ),
+        );
+        if (!cancelled) setSideAds(response.data?.ads ?? []);
+      } catch (error) {
+        if (!cancelled) setSideAds([]);
+      }
+    }
+
+    getSideAds();
+    return () => {
+      cancelled = true;
+    };
+  }, [category]);
 
   const onChange = (pageNumber) => setCurrent(pageNumber);
 
@@ -421,6 +448,62 @@ const PostList = () => {
                 </div>
 
                 {content}
+
+                {sideAds?.length > 0 && (
+                  <div style={{ marginTop: "28px" }}>
+                    <h2
+                      style={{
+                        color: "var(--text)",
+                        fontSize: "1rem",
+                        fontWeight: 700,
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Sponsored
+                    </h2>
+                    <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+                      {sideAds.map((ad) => (
+                        <a
+                          key={ad._id}
+                          href={ad.link || "#"}
+                          target='_blank'
+                          rel='noreferrer nofollow sponsored'
+                          style={{
+                            display: "block",
+                            borderRadius: "12px",
+                            overflow: "hidden",
+                            border: "1px solid var(--border)",
+                            background: "var(--surface)",
+                            textDecoration: "none",
+                          }}
+                        >
+                          {ad.image && ad.image !== "undefined" ? (
+                            <img
+                              src={ad.image}
+                              alt={ad.title || "Sponsored"}
+                              style={{
+                                width: "100%",
+                                height: "110px",
+                                objectFit: "cover",
+                              }}
+                            />
+                          ) : null}
+                          <div style={{ padding: "8px 10px" }}>
+                            <p
+                              style={{
+                                color: "var(--text-secondary)",
+                                fontSize: "0.78rem",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {ad.title}
+                            </p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div
                   style={{

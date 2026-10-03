@@ -10,6 +10,8 @@ import Swal from "sweetalert2";
 import { message } from "antd";
 import { FaTrash, FaUser } from "react-icons/fa";
 
+import { compressImage, formatBytes } from "@/component/utils/compressImage";
+
 const BACKEND = "https://paraglive-backend.vercel.app";
 const MAX_IMAGES = 2;
 
@@ -23,6 +25,7 @@ const Verify = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [compressing, setCompressing] = useState(false);
 
   async function loadStatus() {
     try {
@@ -45,22 +48,57 @@ const Verify = () => {
     }
   }, [session?.user?.id]);
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const files = event.target.files;
     if (previewUrls?.length >= MAX_IMAGES) {
       message.error({ type: "error", content: `Max ${MAX_IMAGES} files` });
       return;
     }
     if (files.length > 0) {
-      const newSelectedFiles = Array.from(files).slice(
-        0,
-        MAX_IMAGES - previewUrls.length,
-      );
-      setSelectedFiles([...selectedFiles, ...newSelectedFiles]);
-      const newPreviewUrls = newSelectedFiles.map((file) =>
-        URL.createObjectURL(file),
-      );
-      setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+      const picked = Array.from(files).slice(0, MAX_IMAGES - previewUrls.length);
+      event.target.value = "";
+
+      // ID photos come straight off a phone camera, so compress them here too
+      // rather than pushing several megabytes at the server. A little more
+      // headroom than an ad photo gets: the document has to stay readable.
+      setCompressing(true);
+      try {
+        const accepted = [];
+        for (const original of picked) {
+          const result = await compressImage(original, {
+            maxBytes: 150 * 1024,
+            maxDimension: 2000,
+            minDimension: 800,
+          });
+
+          if (result.skipped === "undecodable") {
+            message.error({
+              content: `${original.name} could not be read by this browser. Please save it as JPG or PNG and try again.`,
+              duration: 6,
+            });
+            continue;
+          }
+
+          if (result.compressed) {
+            message.success({
+              content: `${original.name}: ${formatBytes(result.originalSize)} to ${formatBytes(result.size)}`,
+              duration: 3,
+            });
+          }
+
+          accepted.push(result.file);
+        }
+
+        if (accepted.length === 0) return;
+
+        setSelectedFiles([...selectedFiles, ...accepted]);
+        setPreviewUrls([
+          ...previewUrls,
+          ...accepted.map((file) => URL.createObjectURL(file)),
+        ]);
+      } finally {
+        setCompressing(false);
+      }
     }
   };
 
@@ -89,14 +127,24 @@ const Verify = () => {
       const formData = new FormData();
       selectedFiles.forEach((file) => formData.append("images", file));
 
-      const uploadedUrls = await fetch(`${BACKEND}/api/files2/files`, {
+      const uploaded = await fetch(`${BACKEND}/api/files2/files`, {
         method: "POST",
         body: formData,
       }).then((res) => res.json());
 
+      // The endpoint used to return a bare array of URLs; it now returns
+      // { urls, files } so the fileIds can be stored for later cleanup.
+      const uploadedUrls = Array.isArray(uploaded)
+        ? uploaded
+        : uploaded.urls || [];
+      const uploadedFileIds = Array.isArray(uploaded)
+        ? []
+        : (uploaded.files || []).map((f) => f.fileId).filter(Boolean);
+
       await axios.post(`${BACKEND}/api/verification`, {
         userId: session?.user?.id,
         images: uploadedUrls,
+        imageFileIds: uploadedFileIds,
       });
 
       Swal.fire({

@@ -13,6 +13,7 @@ import { BsTelephone } from "react-icons/bs";
 import { ImBlocked } from "react-icons/im";
 import { findPostMeta } from "@/component/postmeta";
 import Header from "@/component/header/header";
+import { api } from "@/component/utils/api";
 
 const myLink = process.env.NEXT_PUBLIC_OFFERLINK;
 
@@ -31,6 +32,12 @@ const Details = () => {
   const [rainbow, setRainbow] = useState({});
   const [links, setLinks] = useState();
   const [loading, setLoading] = useState(false);
+  // Related ads paging. The list cycles rather than ending, so there is always
+  // something more to show.
+  const [relatedPage, setRelatedPage] = useState(1);
+  const [relatedLoading, setRelatedLoading] = useState(false);
+  const [relatedExhausted, setRelatedExhausted] = useState(false);
+  const [sideAds, setSideAds] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -52,9 +59,59 @@ const Details = () => {
       setResposiveAds(response.data.responsiveads);
       setRainbow(response.data.rainbow);
       setLoading(false);
+
+      // Navigating to another ad starts the related list over.
+      setRelatedPage(1);
+      setRelatedExhausted(false);
+
+      // Side ads for this ad category, falling back to the latest ones so the
+      // slot is not left empty when no category matches.
+      try {
+        const subCategory = response.data.data?.[0]?.subCategory;
+        const sideRes = await axios.get(
+          api(
+            `/api/sideads/category?category=${encodeURIComponent(
+              subCategory ?? "",
+            )}&fallback=1&limit=4`,
+          ),
+        );
+        setSideAds(sideRes.data?.ads ?? []);
+      } catch (sideError) {
+        setSideAds([]);
+      }
     } catch (error) {
       setLoading(false);
       console.error(error);
+    }
+  }
+
+  /**
+   * Load the next page of related ads and append them.
+   *
+   * The backend wraps its offset with a modulo, so once the end of the list is
+   * reached it starts again from the beginning. Repeats are intentional: the
+   * button should never stop producing ads.
+   */
+  async function loadMoreRelated() {
+    if (!id || relatedLoading) return;
+    setRelatedLoading(true);
+    try {
+      const nextPage = relatedPage + 1;
+      const response = await axios.get(
+        api(`/api/products/${id}/related?page=${nextPage}&limit=8`),
+      );
+      const more = response.data?.data?.related ?? [];
+      if (more.length === 0) {
+        // Only happens when the whole site has no other ads to show.
+        setRelatedExhausted(true);
+      } else {
+        setAds((prev) => [...(prev ?? []), ...more]);
+        setRelatedPage(nextPage);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRelatedLoading(false);
     }
   }
 
@@ -357,6 +414,9 @@ const Details = () => {
                         width={200}
                         height={250}
                         src={postDetails?.imgTwo}
+                        alt={
+                          postDetails?.altTexts?.[1] || postDetails?.name
+                        }
                       />
                     )}
                     {!postDetails?.imgThree ||
@@ -368,6 +428,9 @@ const Details = () => {
                         width={200}
                         height={250}
                         src={postDetails?.imgThree}
+                        alt={
+                          postDetails?.altTexts?.[2] || postDetails?.name
+                        }
                       />
                     )}
                     {!postDetails?.imgOne || postDetails?.imgOne == "empty" ? (
@@ -378,6 +441,9 @@ const Details = () => {
                         width={200}
                         height={250}
                         src={postDetails?.imgOne}
+                        alt={
+                          postDetails?.altTexts?.[0] || postDetails?.name
+                        }
                       />
                     )}
                     {!postDetails?.imgFour ||
@@ -389,6 +455,9 @@ const Details = () => {
                         width={200}
                         height={250}
                         src={postDetails?.imgFour}
+                        alt={
+                          postDetails?.altTexts?.[3] || postDetails?.name
+                        }
                       />
                     )}
                   </Image.PreviewGroup>
@@ -414,7 +483,7 @@ const Details = () => {
               </div>
 
               <Link
-                href={`/reports/${id?.[1]}__${postDetails?.owner?.[0]?._id}`}
+                href={`/reports/${id}__${postDetails?.owner?.[0]?._id}`}
               >
                 <button
                   style={{
@@ -475,9 +544,11 @@ const Details = () => {
           )}
 
           <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
-            {newAds?.map((a) => (
+            {newAds?.map((a, i) => (
               <Link
-                key={a._id}
+                // The list cycles, so the same ad can legitimately appear twice;
+                // the index keeps React keys unique.
+                key={`${a._id}-${i}`}
                 href={`${a?._id}?${query}`}
                 target='_blank'
                 rel='noreferrer'
@@ -509,7 +580,7 @@ const Details = () => {
                       transition: "transform 0.3s",
                     }}
                     className='sm:h-[200px]'
-                    alt={a?.name}
+                    alt={a?.altTexts?.[0] || a?.name}
                     onMouseEnter={(e) =>
                       (e.target.style.transform = "scale(1.05)")
                     }
@@ -533,6 +604,80 @@ const Details = () => {
               </Link>
             ))}
           </div>
+
+          {newAds?.length > 0 && !relatedExhausted && (
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+              <button
+                onClick={loadMoreRelated}
+                disabled={relatedLoading}
+                className='btn-accent'
+                style={{
+                  opacity: relatedLoading ? 0.6 : 1,
+                  cursor: relatedLoading ? "wait" : "pointer",
+                }}
+              >
+                {relatedLoading ? "Loading..." : "See More"}
+              </button>
+            </div>
+          )}
+
+          {/* Side ads. These existed in the admin panel but were only ever
+              rendered on blog detail pages, so they looked switched off. */}
+          {sideAds?.length > 0 && (
+            <div style={{ marginTop: "32px" }}>
+              <h2
+                style={{
+                  color: "var(--text)",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  marginBottom: "12px",
+                }}
+              >
+                Sponsored
+              </h2>
+              <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+                {sideAds.map((ad) => (
+                  <a
+                    key={ad._id}
+                    href={ad.link || "#"}
+                    target='_blank'
+                    rel='noreferrer nofollow sponsored'
+                    style={{
+                      display: "block",
+                      borderRadius: "12px",
+                      overflow: "hidden",
+                      border: "1px solid var(--border)",
+                      background: "var(--surface)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {ad.image && ad.image !== "undefined" ? (
+                      <img
+                        src={ad.image}
+                        alt={ad.title || "Sponsored"}
+                        style={{
+                          width: "100%",
+                          height: "120px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : null}
+                    <div style={{ padding: "10px" }}>
+                      <p
+                        style={{
+                          color: "var(--text-secondary)",
+                          fontSize: "0.8rem",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {ad.title}
+                      </p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

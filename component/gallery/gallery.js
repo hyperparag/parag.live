@@ -32,7 +32,7 @@ const Gallery = ({ data1, category }) => {
               <img
                 style={{ height: "300px", objectFit: "cover", display: "block" }}
                 src={a.imgOne}
-                alt={a.name}
+                alt={a.altTexts?.[0] || a.name}
               />
             </Link>
           ))}

@@ -8,12 +8,17 @@ import React, { useEffect, useState } from "react";
 const Footer = dynamic(() => import("@/component/footer/footer2"));
 const Header = dynamic(() => import("@/component/header/header"));
 import style from "../../styles/moduleCss/postDetails.module.css";
+import Swal from "sweetalert2";
+import { useSession } from "next-auth/react";
+import { api, authHeaders, jsonAuthHeaders } from "@/component/utils/api";
 
 const Details = () => {
   const router = useRouter();
   const id = router?.query?.id;
   const [post, setPost] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [reposting, setReposting] = useState(false);
+  const { data: session } = useSession();
 
   async function posts(id) {
     try {
@@ -38,6 +43,81 @@ const Details = () => {
       posts(id);
     }
   }, [router?.query]);
+
+  const repost = async () => {
+    if (reposting || !id) return;
+    setReposting(true);
+
+    try {
+      const quoteRes = await axios.get(api(`/api/products/repost-quote/${id}`), {
+        headers: authHeaders(session),
+      });
+      const quote = quoteRes.data?.data ?? {};
+      const fee = Number(quote.fee ?? 0);
+
+      if (!quote.affordable) {
+        Swal.fire({
+          icon: "error",
+          title: "Not enough credits",
+          text: `Reposting this ad costs $${fee.toFixed(2)} but your balance is $${Number(
+            quote.credit ?? 0,
+          ).toFixed(2)}.`,
+        });
+        setReposting(false);
+        return;
+      }
+
+      const confirmed = await Swal.fire({
+        title: fee > 0 ? `Repost for $${fee.toFixed(2)}?` : "Repost this ad?",
+        text:
+          fee > 0
+            ? "Reposting moves this ad back to the top. The same charge as the original post applies."
+            : "Reposting moves this ad back to the top of the listings. This one is free.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: fee > 0 ? "Yes, charge me" : "Yes, repost it",
+      });
+
+      if (!confirmed.isConfirmed) {
+        setReposting(false);
+        return;
+      }
+
+      const response = await axios.post(
+        api(`/api/products/repost/${id}`),
+        {},
+        { headers: jsonAuthHeaders(session) },
+      );
+
+      if (response.data.status === "success") {
+        const held = response.data.data?.isApproved === false;
+        await Swal.fire({
+          icon: held ? "info" : "success",
+          title: held ? "Reposted, pending review" : "Reposted",
+          text: held
+            ? response.data.message
+            : "Your ad is back at the top of the listings.",
+        });
+        router.push("/dashboard/profile");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Could not repost",
+          text: response.data.message || "Please try again.",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Could not repost",
+        text:
+          error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      });
+    } finally {
+      setReposting(false);
+    }
+  };
 
   return (
     <div className='page-bg'>
@@ -139,9 +219,20 @@ const Details = () => {
               </li>
             </ul>
           </div>
-          <Link className='p-2 btn-accent' href={`/my-post/update/${id}`}>
-            Edit This post
-          </Link>
+          <div className='flex flex-wrap gap-3 m-10 mt-0'>
+            <Link className='p-2 btn-accent' href={`/my-post/update/${id}`}>
+              Edit This post
+            </Link>
+            <button
+              onClick={repost}
+              disabled={reposting}
+              title='Move this ad back to the top of the listings'
+              className='btn-accent'
+              style={{ opacity: reposting ? 0.6 : 1 }}
+            >
+              {reposting ? "Reposting..." : "Repost to top"}
+            </button>
+          </div>
         </div>
       )}
 

@@ -17,6 +17,11 @@ export const authOptions = {
         .then((response) => {
           user.id = response.data.isExist._id;
           user.credit = response.data.isExist.credit;
+          user.referralCode = response.data.isExist.referralCode;
+          // The backend JWT. Google sign-in previously produced no backend
+          // credential at all, which is why write endpoints had to be left
+          // unauthenticated. components/utils/api.js reads this.
+          user.accessToken = response.data.token;
         });
       return true;
     },

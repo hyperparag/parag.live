@@ -12,6 +12,10 @@ import Link from "next/link";
 const Credits = () => {
   const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
+  // Referral code, applied at purchase time: the referrer is credited 50% of
+  // what is paid here once the payment confirms.
+  const [referralCode, setReferralCode] = useState("");
+  const [referralError, setReferralError] = useState("");
   const usersStringfy = Cookies.get("token");
   const { users } = User();
   const router = useRouter();
@@ -35,12 +39,13 @@ const Credits = () => {
   async function recharge(e) {
     e.preventDefault();
     setLoading(true);
+    setReferralError("");
     if (requested) return;
     requested = true;
     try {
       const response = await axios.post(
         `https://paraglive-backend.vercel.app/api/recharge/${id}`,
-        { amount },
+        { amount, referralCode: referralCode.trim().toUpperCase() || undefined },
         {
           headers: {
             authorization: `Bearer ${usersStringfy}`,
@@ -54,7 +59,16 @@ const Credits = () => {
         location.href = data.redirectURI;
       }
     } catch (error) {
-      console.error(error);
+      setLoading(false);
+      requested = false;
+      // The server rejects an unknown code, or your own code, with a 422 so you
+      // find out here rather than after paying.
+      const message = error?.response?.data?.message;
+      if (error?.response?.status === 422 && message) {
+        setReferralError(message);
+      } else {
+        console.error(error);
+      }
     }
   }
 
@@ -215,6 +229,61 @@ const Credits = () => {
                 </Link>
               </label>
             </div>
+            <div style={{ marginTop: "16px" }}>
+              <label
+                htmlFor='referralCode'
+                style={{
+                  display: "block",
+                  color: "var(--text)",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  marginBottom: "6px",
+                }}
+              >
+                Referral code{" "}
+                <span
+                  style={{ color: "var(--text-muted)", fontWeight: 400 }}
+                >
+                  (optional)
+                </span>
+              </label>
+              <input
+                id='referralCode'
+                type='text'
+                value={referralCode}
+                onChange={(e) => {
+                  setReferralCode(e.target.value.toUpperCase());
+                  setReferralError("");
+                }}
+                placeholder='e.g. K7MPQR24'
+                maxLength={16}
+                className='themed-input'
+                style={{ maxWidth: "260px", letterSpacing: "0.08em" }}
+              />
+              {referralError ? (
+                <p
+                  style={{
+                    color: "var(--error)",
+                    fontSize: "0.8rem",
+                    marginTop: "6px",
+                  }}
+                >
+                  {referralError}
+                </p>
+              ) : (
+                <p
+                  style={{
+                    color: "var(--text-muted)",
+                    fontSize: "0.8rem",
+                    marginTop: "6px",
+                  }}
+                >
+                  If someone invited you, enter their code and they receive 50%
+                  of this purchase as posting credit.
+                </p>
+              )}
+            </div>
+
             <button
               className='btn-accent'
               style={{ marginTop: "16px", padding: "10px 32px" }}
@@ -342,28 +411,21 @@ const Credits = () => {
               { label: "Coinbase", href: "https://www.coinbase.com/signin" },
               { label: "abra.com", href: "https://abra.com/" },
               { label: "bitcoin.com", href: "https://bitcoin.com/" },
+              { label: "binance.com", href: "https://www.binance.com/" },
             ].map((item, i) => (
               <a
                 key={i}
                 href={item.href}
                 target='_blank'
                 rel='noopener noreferrer'
+                className='btn-accent'
                 style={{
-                  background: "var(--accent)",
-                  color: "#fff",
                   padding: "6px 16px",
                   borderRadius: "6px",
                   fontSize: "0.8rem",
                   fontWeight: 600,
                   textDecoration: "none",
-                  transition: "all 0.2s",
                 }}
-                onMouseEnter={(e) =>
-                  (e.target.style.background = "var(--accent-hover)")
-                }
-                onMouseLeave={(e) =>
-                  (e.target.style.background = "var(--accent)")
-                }
               >
                 {item.label}
               </a>

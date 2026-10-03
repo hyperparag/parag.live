@@ -496,6 +496,9 @@ import Link from "next/link";
 import User from "../user";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import { DatePicker } from "antd";
+import { compressImage, formatBytes } from "../utils/compressImage";
+import { api, jsonAuthHeaders, authHeaders } from "../utils/api";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -515,6 +518,10 @@ const initialState = {
   cities: "",
   premiumDay: 0,
   age: "",
+  // Per-image alt text, parallel to imgOne..imgFour.
+  altTexts: ["", "", "", ""],
+  // null posts immediately; an ISO date schedules the ad for later.
+  publishAt: null,
   posterId: "",
   isPremium: false,
   isApproved: false,
@@ -542,6 +549,8 @@ const PostForm = () => {
   const [local, setLocal] = useState(0);
   const [value1, setValue1] = useState(0);
   const [errors, setErrors] = useState({});
+  const [compressing, setCompressing] = useState(false);
+  const [scheduleLater, setScheduleLater] = useState(false);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -549,24 +558,79 @@ const PostForm = () => {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleFileChange = (event) => {
-    const files = event.target.files;
-    if (files?.[0].size > 50000) {
-      message.error({ type: "error", content: "Max Image Size is 50kb" });
+  /**
+   * Photos are resized and re-encoded in the browser until they fit under 50KB,
+   * rather than being rejected for being too big. Note the old version only ever
+   * looked at files[0], so a multi-select slipped past the check entirely.
+   */
+  const handleFileChange = async (event) => {
+    const picked = Array.from(event.target.files || []);
+    // Let the same file be chosen again later.
+    event.target.value = "";
+    if (picked.length === 0) return;
+
+    const room = 4 - previewUrls.length;
+    if (room <= 0) {
+      message.error({ type: "error", content: "You can upload up to 4 photos" });
       return;
     }
-    if (previewUrls?.length == 4) {
-      alert("Max 4 files");
-      return;
+
+    const queue = picked.slice(0, room);
+    if (picked.length > room) {
+      message.warning({
+        content: `Only ${room} more photo${room === 1 ? "" : "s"} can be added`,
+      });
     }
-    if (files.length > 0) {
-      const newSelectedFiles = Array.from(files);
-      setSelectedFiles([...selectedFiles, ...newSelectedFiles]);
-      const newPreviewUrls = newSelectedFiles.map((file) =>
-        URL.createObjectURL(file),
-      );
-      setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+
+    setCompressing(true);
+    try {
+      const accepted = [];
+      for (const original of queue) {
+        const result = await compressImage(original);
+
+        if (result.skipped === "undecodable") {
+          message.error({
+            content: `${original.name} could not be read by this browser. Please save it as JPG or PNG and try again.`,
+            duration: 6,
+          });
+          continue;
+        }
+
+        if (result.size > 50 * 1024) {
+          // Both quality and resolution bottomed out. Still upload it, but say so.
+          message.warning({
+            content: `${original.name} could only be reduced to ${formatBytes(result.size)}.`,
+            duration: 5,
+          });
+        } else if (result.compressed) {
+          message.success({
+            content: `${original.name}: ${formatBytes(result.originalSize)} to ${formatBytes(result.size)}`,
+            duration: 3,
+          });
+        }
+
+        accepted.push(result.file);
+      }
+
+      if (accepted.length === 0) return;
+
+      setSelectedFiles((prev) => [...prev, ...accepted]);
+      setPreviewUrls((prev) => [
+        ...prev,
+        ...accepted.map((file) => URL.createObjectURL(file)),
+      ]);
+      setErrors((prev) => ({ ...prev, image: "" }));
+    } finally {
+      setCompressing(false);
     }
+  };
+
+  const handleAltTextChange = (index, value) => {
+    setState((prev) => {
+      const altTexts = [...(prev.altTexts || ["", "", "", ""])];
+      altTexts[index] = value;
+      return { ...prev, altTexts };
+    });
   };
 
   const removeImage = (url) => {
@@ -576,8 +640,15 @@ const PostForm = () => {
       newSelectedFiles.splice(indexToRemove, 1);
       const newPreviewUrls = [...previewUrls];
       newPreviewUrls.splice(indexToRemove, 1);
+      // Alt text belongs to a photo, so it has to move with it.
+      const newAltTexts = [...(state.altTexts || ["", "", "", ""])];
+      newAltTexts.splice(indexToRemove, 1);
+      newAltTexts.push("");
+
+      URL.revokeObjectURL(url);
       setSelectedFiles(newSelectedFiles);
       setPreviewUrls(newPreviewUrls);
+      setState((prev) => ({ ...prev, altTexts: newAltTexts }));
     }
   };
 
@@ -593,29 +664,37 @@ const PostForm = () => {
     { label: "30 Days ($15)", value: 15 },
   ];
 
-  const topForDays = ({ target: { value } }) => {
-    setValue1(value);
-    if (router.query.name?.[0] == "multiple-city-ads") {
-      let e = JSON.parse(localStorage?.getItem("cities"));
-      setLocal((0.05 + value) * (e?.length || 0));
-    } else {
-      setLocal(0.0 + value);
+  const MULTI_CITY_RATE = 0.05;
+
+  /** How many cities this ad will cover, as the server will see them. */
+  const selectedCityCount = () => {
+    if (router.query.name?.[0] == "local-ads") return 1;
+    try {
+      const cities = JSON.parse(localStorage?.getItem("cities"));
+      return Array.isArray(cities) ? cities.length : 0;
+    } catch (error) {
+      return 0;
     }
   };
 
+  /**
+   * Mirrors feeForAd() on the server: the boost price, plus a per-city charge
+   * only once an ad covers more than one city.
+   */
+  const quote = (boostPrice) => {
+    const cities = selectedCityCount();
+    const multiCity = cities > 1 ? cities * MULTI_CITY_RATE : 0;
+    return Math.round((Number(boostPrice || 0) + multiCity) * 100) / 100;
+  };
+
+  const topForDays = ({ target: { value } }) => {
+    setValue1(value);
+    setLocal(quote(value));
+  };
+
   useEffect(() => {
-    if (router.query.name?.[0] == "multiple-city-ads") {
-      let e = JSON.parse(localStorage?.getItem("cities"));
-      if (e == null) {
-        setLocal(0);
-        return;
-      } else {
-        setLocal(e?.length * 0.05);
-      }
-    }
-    if (router.query.name?.[0] == "local-ads") setLocal(0.0);
-    if (router.query.name?.[0] == "premium-ads") setLocal(1);
-  }, [router.query.name]);
+    setLocal(quote(value1));
+  }, [router.query.name, value1]);
 
   const validate = () => {
     const e = {};
@@ -658,93 +737,137 @@ const PostForm = () => {
     }
 
     const formData = new FormData();
-    formData.append("images", selectedFiles[0]);
-    formData.append("images", selectedFiles[1]);
-    formData.append("images", selectedFiles[2]);
-    formData.append("images", selectedFiles[3]);
+    // Only append the photos that actually exist: appending selectedFiles[1..3]
+    // unconditionally used to send the string "undefined" for empty slots.
+    selectedFiles.forEach((file) => {
+      if (file) formData.append("images", file);
+    });
 
-    await fetch("https://paraglive-backend.vercel.app/api/files2/files", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        data.imgOne = result[0] ?? "empty";
-        data.imgTwo = result[1] ?? "empty";
-        data.imgThree = result[2] ?? "empty";
-        data.imgFour = result[3] ?? "empty";
+    try {
+      const uploadRes = await fetch(api("/api/files2/files"), {
+        method: "POST",
+        body: formData,
       });
+      if (!uploadRes.ok) throw new Error("upload failed");
+      const result = await uploadRes.json();
+
+      // The endpoint now returns { urls, files } so the ImageKit fileId can be
+      // stored alongside each URL, which is what makes cleanup possible.
+      const urls = Array.isArray(result) ? result : result.urls || [];
+      const uploaded = Array.isArray(result) ? [] : result.files || [];
+
+      data.imgOne = urls[0] ?? "empty";
+      data.imgTwo = urls[1] ?? "empty";
+      data.imgThree = urls[2] ?? "empty";
+      data.imgFour = urls[3] ?? "empty";
+      data.imageFileIds = uploaded.map((f) => f.fileId).filter(Boolean);
+    } catch (uploadError) {
+      console.log(uploadError);
+      message.error({
+        type: "error",
+        content: "Could not upload your photos. Please try again.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Alt text only for the slots that have a photo.
+    data.altTexts = (state.altTexts || [])
+      .slice(0, selectedFiles.length)
+      .map((t) => (t || "").trim());
 
     if (router.query.name[0] == "local-ads") {
       data.cities = [router.query.name[1]];
-      data.isPremium = false;
-      data.isApproved = true;
     } else {
-      let i = JSON.parse(localStorage.getItem("cities"));
-      data.isApproved = true;
-      data.isPremium = false;
-      data.cities = i;
+      data.cities = JSON.parse(localStorage.getItem("cities"));
     }
 
+    // premiumDay is the only boost input the server accepts; it derives the
+    // price, isPremium and boostExpiresAt itself. isApproved is decided by
+    // moderation on the server and is no longer sent from here at all.
     if (value1 == 0) data.premiumDay = 0;
-    if (value1 == 7) {
-      data.premiumDay = 7 * 24;
-      data.isPremium = true;
-      data.isApproved = true;
-    }
-    if (value1 == 10) {
-      data.premiumDay = 14 * 24;
-      data.isPremium = true;
-      data.isApproved = true;
-    }
-    if (value1 == 15) {
-      data.premiumDay = 30 * 24;
-      data.isApproved = true;
-      data.isPremium = true;
-    }
+    if (value1 == 7) data.premiumDay = 7 * 24;
+    if (value1 == 10) data.premiumDay = 14 * 24;
+    if (value1 == 15) data.premiumDay = 30 * 24;
 
+    delete data.isApproved;
+    delete data.isPremium;
+    delete data.error;
+
+    data.publishAt = scheduleLater && state.publishAt ? state.publishAt : null;
     data.posterId = session?.user?.id;
 
-    await Promise.all([
-      fetch("https://paraglive-backend.vercel.app/api/products", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(data),
-      }),
-      fetch("https://skipthegame-live-backend.vercel.app/api/products", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(data),
-      }),
-    ])
-      .then(([e]) => e.json())
+    // The second host was a leftover mirror; posting to it duplicated every ad
+    // and its response was discarded anyway.
+    await fetch(api("/api/products"), {
+      method: "POST",
+      headers: jsonAuthHeaders(session),
+      body: JSON.stringify(data),
+    })
+      .then((e) => e.json())
       .then((t) => {
+        setLoading(false);
+
+        if (t.code === 401 || t.code === 403) {
+          message.error({
+            type: "error",
+            content: "Your session has expired. Please sign in again.",
+          });
+          return;
+        }
+
+        if (t.code === 402) {
+          Swal.fire({
+            icon: "error",
+            title: "Not enough credits",
+            text: t.message || "Please top up your balance and try again.",
+          });
+          return;
+        }
+
+        if (t.status !== "success") {
+          Swal.fire({
+            icon: "error",
+            title: "Could not post your ad",
+            text: t.message || "Please try again.",
+          });
+          return;
+        }
+
         localStorage.removeItem("cities");
-        const newCredit = users?.credit - local?.toFixed(2);
-        axios
-          .patch(
-            `https://paraglive-backend.vercel.app/api/users/${session?.user?.id}`,
-            {
-              credit: newCredit,
-            },
-          )
-          .then((response) => {
-            setLoading(false);
-            if (response.data.status == "success") {
-              Swal.fire({
-                position: "top-center",
-                icon: "success",
-                title: "Your work has been saved",
-                showConfirmButton: false,
-                timer: 2500,
-              }).then(
-                setTimeout(() => {
-                  router.push("/dashboard/profile");
-                }, 500),
-              );
-            }
-          })
-          .catch((err) => console.log(err));
+
+        // The balance is no longer recalculated here. The server charges the
+        // fee when it creates the ad, so writing it back from the browser both
+        // double-charged boosts and allowed any balance to be set.
+        const heldForReview = t.data && t.data.isApproved === false;
+        const scheduled = t.data && t.data.publishAt;
+
+        Swal.fire({
+          position: "top-center",
+          icon: heldForReview ? "info" : "success",
+          title: heldForReview
+            ? "Submitted for review"
+            : scheduled
+              ? "Your ad is scheduled"
+              : "Your work has been saved",
+          text: heldForReview
+            ? t.message
+            : scheduled
+              ? `It will go live on ${new Date(scheduled).toLocaleString()}.`
+              : undefined,
+          showConfirmButton: heldForReview || Boolean(scheduled),
+          timer: heldForReview || scheduled ? undefined : 2500,
+        }).then(() => {
+          router.push("/dashboard/profile");
+        });
+      })
+      .catch((err) => {
+        setLoading(false);
+        console.log(err);
+        message.error({
+          type: "error",
+          content: "Something went wrong. Please try again.",
+        });
       });
   };
 
@@ -795,7 +918,7 @@ const PostForm = () => {
             className='font-normal text-xs'
             style={{ color: "var(--text-muted)" }}
           >
-            (max 4, max 50kb each)
+            (max 4 &mdash; any size, we optimise them for you)
           </span>
         </p>
         <div className='flex flex-wrap gap-3 items-start'>
@@ -827,11 +950,19 @@ const PostForm = () => {
                 color: "var(--text-muted)",
               }}
             >
-              <FaUser className='text-3xl mb-1' />
-              <span className='text-xs'>Add Photo</span>
+              {compressing ? (
+                <span className='text-xs px-2 text-center'>Optimising...</span>
+              ) : (
+                <>
+                  <FaUser className='text-3xl mb-1' />
+                  <span className='text-xs'>Add Photo</span>
+                </>
+              )}
               <input
                 type='file'
                 accept='image/*'
+                multiple
+                disabled={compressing}
                 onChange={handleFileChange}
                 className='absolute inset-0 opacity-0 cursor-pointer w-full h-full'
               />
@@ -842,6 +973,45 @@ const PostForm = () => {
           <p className='text-xs mt-1' style={{ color: "var(--error)" }}>
             {errors.image}
           </p>
+        )}
+
+        {/* Alt text, one per photo. Describes the image for screen readers and
+            for anyone whose images fail to load, and it helps search engines. */}
+        {previewUrls.length > 0 && (
+          <div className='mt-4'>
+            <p
+              className='text-sm font-semibold mb-2'
+              style={{ color: "var(--text)" }}
+            >
+              Alt Text{" "}
+              <span
+                className='font-normal text-xs'
+                style={{ color: "var(--text-muted)" }}
+              >
+                (optional &mdash; describe each photo)
+              </span>
+            </p>
+            <div className='flex flex-col gap-2'>
+              {previewUrls.map((url, index) => (
+                <div key={`alt-${index}`} className='flex items-center gap-2'>
+                  <img
+                    src={url}
+                    alt=''
+                    className='w-10 h-10 rounded object-cover flex-shrink-0'
+                    style={{ border: "1px solid var(--border)" }}
+                  />
+                  <input
+                    type='text'
+                    maxLength={125}
+                    value={state.altTexts?.[index] ?? ""}
+                    onChange={(e) => handleAltTextChange(index, e.target.value)}
+                    placeholder={`Describe photo ${index + 1}`}
+                    className='w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-input'
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 
@@ -1022,6 +1192,58 @@ const PostForm = () => {
           />
         </div>
 
+        {/* Schedule: post now, or pick a date and time for it to go live. The ad
+            is hidden from the public listings until then. */}
+        <div className='pt-6' style={{ borderTop: "1px solid var(--border)" }}>
+          <p
+            className='text-sm font-semibold mb-2'
+            style={{ color: "var(--text)" }}
+          >
+            When should this go live?
+          </p>
+          <Radio.Group
+            value={scheduleLater}
+            onChange={(e) => {
+              setScheduleLater(e.target.value);
+              if (!e.target.value) {
+                setState((prev) => ({ ...prev, publishAt: null }));
+              }
+            }}
+            options={[
+              { label: "Post now", value: false },
+              { label: "Schedule for later", value: true },
+            ]}
+          />
+          {scheduleLater && (
+            <div className='mt-3'>
+              <DatePicker
+                showTime={{ format: "HH:mm" }}
+                format='YYYY-MM-DD HH:mm'
+                placeholder='Pick a date and time'
+                // Only today onwards; a past time would publish immediately.
+                disabledDate={(current) =>
+                  current && current.endOf("day").valueOf() < Date.now()
+                }
+                onChange={(value) =>
+                  setState((prev) => ({
+                    ...prev,
+                    publishAt: value ? value.toISOString() : null,
+                  }))
+                }
+              />
+              {state.publishAt && (
+                <p
+                  className='text-xs mt-2'
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Goes live on {new Date(state.publishAt).toLocaleString()}. It
+                  stays hidden until then.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className='pt-2'>
           {users?.credit < local ? (
             <div className='flex flex-col gap-2'>
@@ -1036,7 +1258,7 @@ const PostForm = () => {
                 Buy Credits
               </Link>
             </div>
-          ) : loading ? (
+          ) : loading || compressing ? (
             <button
               disabled
               className='font-semibold px-8 py-2.5 rounded-lg text-sm cursor-not-allowed'
@@ -1045,7 +1267,7 @@ const PostForm = () => {
                 color: "var(--text-muted)",
               }}
             >
-              Submitting...
+              {compressing ? "Optimising photos..." : "Submitting..."}
             </button>
           ) : (
             <button

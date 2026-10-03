@@ -28,6 +28,6 @@ const User = () => {
     }
   }, [session?.user?.email]);
 
-  return { users, usersStringfy };
+  return { users, usersStringfy, refreshUser: getUser };
 };
 export default User;

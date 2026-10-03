@@ -10,10 +10,11 @@ import { Input, Pagination, Select } from "antd";
 import cate from "../../public/category.json";
 import { useSession } from "next-auth/react";
 import Script from "next/script";
+import { api, authHeaders, jsonAuthHeaders } from "@/component/utils/api";
 const { Search } = Input;
 
 const Dashboards = () => {
-  const { users, usersStringfy } = User();
+  const { users, usersStringfy, refreshUser } = User();
   const { data: session } = useSession();
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,8 @@ const Dashboards = () => {
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
   const [startIndex, setStartIndex] = useState(0);
+  const [reposting, setReposting] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   async function posts() {
     if (session) {
@@ -68,7 +71,9 @@ const Dashboards = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`https://paraglive-backend.vercel.app/api/products/${id}`, {})
+          .delete(api(`/api/products/${id}`), {
+            headers: authHeaders(session),
+          })
           .then((response) => {
             if (response.data.status == "success") {
               Swal.fire("Deleted!", "Your file has been deleted.", "success");
@@ -78,6 +83,160 @@ const Dashboards = () => {
           });
       }
     });
+  };
+
+  const repostPost = async (id) => {
+    if (reposting) return;
+    setReposting(id);
+
+    try {
+      const quoteRes = await axios.get(api(`/api/products/repost-quote/${id}`), {
+        headers: authHeaders(session),
+      });
+      const quote = quoteRes.data?.data ?? {};
+      const fee = Number(quote.fee ?? 0);
+
+      const detail = [];
+      if (quote.premiumDay > 0) {
+        detail.push(`a ${Math.round(quote.premiumDay / 24)}-day boost`);
+      }
+      if (quote.cities > 1) detail.push(`${quote.cities} cities`);
+
+      const body =
+        fee > 0
+          ? `Reposting moves this ad back to the top. Because it covers ${detail.join(
+              " and ",
+            )}, the same $${fee.toFixed(2)} charge applies. Your balance is $${Number(
+              quote.credit ?? 0,
+            ).toFixed(2)}.`
+          : "Reposting moves this ad back to the top of the listings. This one is free.";
+
+      if (!quote.affordable) {
+        Swal.fire({
+          icon: "error",
+          title: "Not enough credits",
+          text: `Reposting this ad costs $${fee.toFixed(2)} but your balance is $${Number(
+            quote.credit ?? 0,
+          ).toFixed(2)}.`,
+        });
+        setReposting(null);
+        return;
+      }
+
+      const confirmed = await Swal.fire({
+        title: fee > 0 ? `Repost for $${fee.toFixed(2)}?` : "Repost this ad?",
+        text: body,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#000000",
+        cancelButtonColor: "#d33",
+        confirmButtonText: fee > 0 ? "Yes, charge me" : "Yes, repost it",
+      });
+
+      if (!confirmed.isConfirmed) {
+        setReposting(null);
+        return;
+      }
+
+      const response = await axios.post(
+        api(`/api/products/repost/${id}`),
+        {},
+        { headers: jsonAuthHeaders(session) },
+      );
+
+      if (response.data.status === "success") {
+        const held = response.data.data?.isApproved === false;
+        await Swal.fire({
+          icon: held ? "info" : "success",
+          title: held ? "Reposted, pending review" : "Reposted",
+          text: held
+            ? response.data.message
+            : "Your ad is back at the top of the listings.",
+        });
+        posts();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Could not repost",
+          text: response.data.message || "Please try again.",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Could not repost",
+        text:
+          error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      });
+    } finally {
+      setReposting(null);
+    }
+  };
+
+  const copyReferralCode = async () => {
+    const code = users?.referralCode;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      // Clipboard access can be blocked; the code is on screen to copy by hand.
+      console.log(error);
+    }
+  };
+
+  const referralAvailable = Math.max(
+    0,
+    Math.round(
+      (Number(users?.referralEarnings ?? 0) -
+        Number(users?.referralConverted ?? 0)) *
+        100,
+    ) / 100,
+  );
+
+  const convertReferral = async () => {
+    const result = await Swal.fire({
+      title: "Convert earnings to credit",
+      text: `Available: $${referralAvailable.toFixed(2)}. This becomes posting credit and cannot be turned back into earnings.`,
+      input: "number",
+      inputValue: referralAvailable,
+      inputAttributes: { min: 0.01, max: referralAvailable, step: 0.01 },
+      showCancelButton: true,
+      confirmButtonColor: "#000000",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Convert",
+      inputValidator: (value) => {
+        const n = Number(value);
+        if (!n || n <= 0) return "Enter an amount greater than 0";
+        if (n > referralAvailable + 0.0001)
+          return `You can convert up to $${referralAvailable.toFixed(2)}`;
+      },
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+      const response = await axios.post(
+        api("/api/users/referral/convert"),
+        { amount: Number(result.value) },
+        { headers: jsonAuthHeaders(session) },
+      );
+      await Swal.fire({
+        icon: "success",
+        title: "Converted",
+        text: `$${Number(response.data.converted).toFixed(2)} was added to your credit.`,
+      });
+      refreshUser();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Could not convert",
+        text:
+          error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      });
+    }
   };
 
   const onChange = (page) => setPages(page);
@@ -171,6 +330,103 @@ const Dashboards = () => {
               </Link>
             </div>
           </div>
+
+          {/* Referral programme. Someone who signs up and buys credits with
+              this code earns its owner 50% of what they paid, as referral
+              earnings that can be converted into posting credit. */}
+          {users?.referralCode && (
+            <div
+              style={{
+                background: "var(--surface-2)",
+                border: "1px dashed var(--success)",
+                borderRadius: "10px",
+                padding: "14px 16px",
+                marginBottom: "20px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "12px",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    color: "var(--text)",
+                    fontWeight: 600,
+                    fontSize: "0.85rem",
+                    marginBottom: "4px",
+                  }}
+                >
+                  Your referral code
+                </p>
+                <p
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontSize: "0.78rem",
+                  }}
+                >
+                  Share it. When someone buys credits with your code, 50% of
+                  what they pay is added to your earnings. You can convert
+                  earnings into posting credit any time.
+                </p>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "monospace",
+                    fontSize: "1rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.12em",
+                    color: "var(--text)",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    padding: "8px 14px",
+                  }}
+                >
+                  {users.referralCode}
+                </span>
+                <button
+                  onClick={copyReferralCode}
+                  className='btn-accent'
+                  style={{ padding: "8px 16px", fontSize: "0.78rem" }}
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+                <span
+                  style={{
+                    color: "var(--success)",
+                    fontWeight: 600,
+                    fontSize: "0.82rem",
+                  }}
+                >
+                  Earned: ${Number(users?.referralEarnings ?? 0).toFixed(2)}
+                  {" · "}Available: ${referralAvailable.toFixed(2)}
+                </span>
+                <button
+                  onClick={convertReferral}
+                  disabled={referralAvailable <= 0}
+                  className='btn-accent'
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: "0.78rem",
+                    opacity: referralAvailable <= 0 ? 0.5 : 1,
+                    cursor: referralAvailable <= 0 ? "not-allowed" : "pointer",
+                  }}
+                >
+                  Convert to credit
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Nav tabs */}
           <div
@@ -421,7 +677,7 @@ const Dashboards = () => {
                               fontSize: "0.85rem",
                             }}
                           >
-                            {a.category} &gt; {a.subCategory}
+                            {a.subCategory}
                           </td>
                           <td
                             style={{
@@ -438,6 +694,94 @@ const Dashboards = () => {
                                 boostExpiry && boostExpiry > new Date();
                               const boostExpired =
                                 boostExpiry && boostExpiry <= new Date();
+                              const scheduledFor =
+                                a.publishAt && new Date(a.publishAt) > new Date()
+                                  ? new Date(a.publishAt)
+                                  : null;
+
+                              // Held by moderation: the reason tells the user
+                              // why, instead of the ad just never appearing.
+                              if (a.isApproved === false) {
+                                const why =
+                                  a.moderationReason === "duplicate"
+                                    ? "Looks like a repeat of another of your ads"
+                                    : a.moderationReason === "banned-word"
+                                      ? "Flagged wording"
+                                      : a.moderationReason === "suspicious-link"
+                                        ? "Flagged link"
+                                        : "Waiting on an admin";
+                                return (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      gap: "3px",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        background: "var(--warning)",
+                                        color: "#fff",
+                                        padding: "2px 10px",
+                                        borderRadius: "4px",
+                                        fontSize: "0.7rem",
+                                        fontWeight: 700,
+                                        letterSpacing: "0.06em",
+                                        textTransform: "uppercase",
+                                      }}
+                                    >
+                                      In review
+                                    </span>
+                                    <span
+                                      style={{
+                                        fontSize: "0.65rem",
+                                        color: "var(--text-muted)",
+                                        textAlign: "center",
+                                        maxWidth: "140px",
+                                      }}
+                                    >
+                                      {why}
+                                    </span>
+                                  </div>
+                                );
+                              }
+
+                              if (scheduledFor) {
+                                return (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      gap: "3px",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        background: "var(--info)",
+                                        color: "#fff",
+                                        padding: "2px 10px",
+                                        borderRadius: "4px",
+                                        fontSize: "0.7rem",
+                                        fontWeight: 700,
+                                        letterSpacing: "0.06em",
+                                        textTransform: "uppercase",
+                                      }}
+                                    >
+                                      Scheduled
+                                    </span>
+                                    <span
+                                      style={{
+                                        fontSize: "0.65rem",
+                                        color: "var(--text-muted)",
+                                      }}
+                                    >
+                                      {scheduledFor.toLocaleString()}
+                                    </span>
+                                  </div>
+                                );
+                              }
 
                               if (boostActive) {
                                 return (
@@ -559,6 +903,25 @@ const Dashboards = () => {
                                   View
                                 </button>
                               </Link>
+                              <button
+                                onClick={() => repostPost(a._id)}
+                                disabled={reposting === a._id}
+                                title='Move this ad back to the top of the listings'
+                                style={{
+                                  background: "var(--success)",
+                                  color: "#fff",
+                                  border: "none",
+                                  padding: "4px 12px",
+                                  borderRadius: "6px",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 600,
+                                  cursor:
+                                    reposting === a._id ? "wait" : "pointer",
+                                  opacity: reposting === a._id ? 0.6 : 1,
+                                }}
+                              >
+                                {reposting === a._id ? "..." : "Repost"}
+                              </button>
                               <button
                                 onClick={() => deletePost(a._id)}
                                 style={{

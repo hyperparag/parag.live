@@ -38,7 +38,7 @@ const List = ({ data1, data2, category }) => {
           flexShrink: 0,
         }}
         src={b.imgOne}
-        alt={b.name}
+        alt={b.altTexts?.[0] || b.name}
       />
       <div
         style={{

@@ -10,6 +10,9 @@ import Link from "next/link";
 import User from "@/component/user";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
+import { DatePicker } from "antd";
+import { compressImage, formatBytes } from "@/component/utils/compressImage";
+import { api, jsonAuthHeaders } from "@/component/utils/api";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 const Header = dynamic(() => import("@/component/header/header"));
@@ -31,6 +34,9 @@ const initialState = {
   cities: [],
   link: "",
   age: "",
+  altTexts: ["", "", "", ""],
+  imageFileIds: [],
+  publishAt: null,
   posterId: "",
   isPremium: false,
   isApproved: false,
@@ -57,6 +63,7 @@ const UpdatePost = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [compressing, setCompressing] = useState(false);
 
   // Fetch existing post data
   useEffect(() => {
@@ -86,6 +93,13 @@ const UpdatePost = () => {
             cities: Array.isArray(post.cities) ? post.cities : [],
             link: post.link || "",
             age: post.age || "",
+            altTexts: Array.isArray(post.altTexts)
+              ? [...post.altTexts, "", "", "", ""].slice(0, 4)
+              : ["", "", "", ""],
+            imageFileIds: Array.isArray(post.imageFileIds)
+              ? post.imageFileIds
+              : [],
+            publishAt: post.publishAt || null,
             isPremium: post.isPremium || false,
             isApproved: post.isApproved || false,
             posterId: post.posterId || "",
@@ -122,22 +136,67 @@ const UpdatePost = () => {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleFileChange = (event) => {
-    const files = event.target.files;
-    if (files?.[0]?.size > 2 * 1024 * 1024) {
-      message.error({ content: "Max Image Size is 2MB" });
+  /** Same browser-side optimisation as the create form: resize, never reject. */
+  const handleFileChange = async (event) => {
+    const picked = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (picked.length === 0) return;
+
+    const room = 4 - previewUrls.length;
+    if (room <= 0) {
+      message.error({ content: "You can have up to 4 images" });
       return;
     }
-    if (previewUrls.length >= 4) {
-      message.error({ content: "Max 4 images" });
-      return;
+
+    const queue = picked.slice(0, room);
+    if (picked.length > room) {
+      message.warning({
+        content: `Only ${room} more image${room === 1 ? "" : "s"} can be added`,
+      });
     }
-    if (files.length > 0) {
-      const newFiles = Array.from(files);
-      setSelectedFiles((prev) => [...prev, ...newFiles]);
-      const newUrls = newFiles.map((file) => URL.createObjectURL(file));
-      setPreviewUrls((prev) => [...prev, ...newUrls]);
+
+    setCompressing(true);
+    try {
+      const accepted = [];
+      for (const original of queue) {
+        const result = await compressImage(original);
+
+        if (result.skipped === "undecodable") {
+          message.error({
+            content: `${original.name} could not be read by this browser. Please save it as JPG or PNG and try again.`,
+            duration: 6,
+          });
+          continue;
+        }
+
+        if (result.compressed) {
+          message.success({
+            content: `${original.name}: ${formatBytes(result.originalSize)} to ${formatBytes(result.size)}`,
+            duration: 3,
+          });
+        }
+
+        accepted.push(result.file);
+      }
+
+      if (accepted.length === 0) return;
+
+      setSelectedFiles((prev) => [...prev, ...accepted]);
+      setPreviewUrls((prev) => [
+        ...prev,
+        ...accepted.map((file) => URL.createObjectURL(file)),
+      ]);
+    } finally {
+      setCompressing(false);
     }
+  };
+
+  const handleAltTextChange = (index, value) => {
+    setState((prev) => {
+      const altTexts = [...(prev.altTexts || ["", "", "", ""])];
+      altTexts[index] = value;
+      return { ...prev, altTexts };
+    });
   };
 
   const removeImage = (url) => {
@@ -188,39 +247,58 @@ const UpdatePost = () => {
 
     const data = { ...state };
 
-    // Upload new images if any
+    // Upload new images if any.
+    //
+    // This posted to /api/files/files, which is the dead AWS S3 route (its
+    // credentials are commented out in the backend .env), so replacing an image
+    // on an existing ad silently did nothing. /api/files2/files is the live
+    // ImageKit route, and it also returns the fileId we need for cleanup.
     if (selectedFiles.length > 0) {
+      const fileIds = [...(data.imageFileIds || [])];
+
       for (let i = 0; i < selectedFiles.length; i++) {
         const formData = new FormData();
         formData.append("images", selectedFiles[i]);
         try {
-          const res = await fetch(
-            "https://paraglive-backend.vercel.app/api/files/files",
-            {
-              method: "POST",
-              body: formData,
-            },
-          );
+          const res = await fetch(api("/api/files2/files"), {
+            method: "POST",
+            body: formData,
+          });
+          if (!res.ok) throw new Error("upload failed");
           const result = await res.json();
+
+          const uploaded = Array.isArray(result)
+            ? { url: result[0] }
+            : (result.files || [])[0] || { url: (result.urls || [])[0] };
+
+          if (!uploaded?.url) throw new Error("no url returned");
+
           // Find next empty image slot
-          if (!data.imgOne || data.imgOne === "empty") data.imgOne = result.url;
+          if (!data.imgOne || data.imgOne === "empty") data.imgOne = uploaded.url;
           else if (!data.imgTwo || data.imgTwo === "empty")
-            data.imgTwo = result.url;
+            data.imgTwo = uploaded.url;
           else if (!data.imgThree || data.imgThree === "empty")
-            data.imgThree = result.url;
+            data.imgThree = uploaded.url;
           else if (!data.imgFour || data.imgFour === "empty")
-            data.imgFour = result.url;
+            data.imgFour = uploaded.url;
+
+          if (uploaded.fileId) fileIds.push(uploaded.fileId);
         } catch (err) {
           console.error(err);
+          message.error({
+            content: "One of your images could not be uploaded.",
+          });
         }
       }
+
+      data.imageFileIds = fileIds;
     }
 
     try {
       const response = await axios.patch(
-        `https://paraglive-backend.vercel.app/api/products/${router.query.id}`,
+        api(`/api/products/${router.query.id}`),
         data,
-        { headers: { "content-type": "application/json" } },
+        { headers: jsonAuthHeaders(session) },
       );
       setSubmitting(false);
       if (response.data.status === "success") {
@@ -278,7 +356,7 @@ const UpdatePost = () => {
               className='font-normal text-xs'
               style={{ color: "var(--text-muted)" }}
             >
-              (max 4, max 2MB each)
+              (max 4 &mdash; any size, we optimise them for you)
             </span>
           </p>
           {loading ? (
@@ -315,16 +393,66 @@ const UpdatePost = () => {
                     color: "var(--text-muted)",
                   }}
                 >
-                  <FaUser className='text-3xl mb-1' />
-                  <span className='text-xs'>Add Photo</span>
+                  {compressing ? (
+                    <span className='text-xs px-2 text-center'>
+                      Optimising...
+                    </span>
+                  ) : (
+                    <>
+                      <FaUser className='text-3xl mb-1' />
+                      <span className='text-xs'>Add Photo</span>
+                    </>
+                  )}
                   <input
                     type='file'
                     accept='image/*'
+                    multiple
+                    disabled={compressing}
                     onChange={handleFileChange}
                     className='absolute inset-0 opacity-0 cursor-pointer w-full h-full'
                   />
                 </label>
               )}
+            </div>
+          )}
+
+          {/* Alt text, one per photo. */}
+          {!loading && previewUrls.length > 0 && (
+            <div className='mt-4'>
+              <p
+                className='text-sm font-semibold mb-2'
+                style={{ color: "var(--text)" }}
+              >
+                Alt Text{" "}
+                <span
+                  className='font-normal text-xs'
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  (optional &mdash; describe each photo)
+                </span>
+              </p>
+              <div className='flex flex-col gap-2'>
+                {previewUrls.map((url, index) => (
+                  <div key={`alt-${index}`} className='flex items-center gap-2'>
+                    <img
+                      src={url}
+                      alt=''
+                      className='w-10 h-10 rounded object-cover flex-shrink-0'
+                      style={{ border: "1px solid var(--border)" }}
+                    />
+                    <input
+                      type='text'
+                      maxLength={125}
+                      value={state.altTexts?.[index] ?? ""}
+                      onChange={(e) =>
+                        handleAltTextChange(index, e.target.value)
+                      }
+                      placeholder={`Describe photo ${index + 1}`}
+                      className='w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-input'
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -527,9 +655,47 @@ const UpdatePost = () => {
             </div>
           )}
 
+          {/* Schedule. Only editable while the ad is still waiting to go live;
+              once it is published there is nothing left to schedule. */}
+          {state.publishAt &&
+            new Date(state.publishAt).getTime() > Date.now() && (
+              <div
+                className='pt-4'
+                style={{ borderTop: "1px solid var(--border)" }}
+              >
+                <p
+                  className='text-sm font-semibold mb-2'
+                  style={{ color: "var(--text)" }}
+                >
+                  Scheduled to go live
+                </p>
+                <DatePicker
+                  showTime={{ format: "HH:mm" }}
+                  format='YYYY-MM-DD HH:mm'
+                  placeholder='Pick a date and time'
+                  disabledDate={(current) =>
+                    current && current.endOf("day").valueOf() < Date.now()
+                  }
+                  onChange={(value) =>
+                    setState((prev) => ({
+                      ...prev,
+                      publishAt: value ? value.toISOString() : null,
+                    }))
+                  }
+                />
+                <p
+                  className='text-xs mt-2'
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Currently {new Date(state.publishAt).toLocaleString()}. Clear
+                  the date to publish it straight away.
+                </p>
+              </div>
+            )}
+
           {/* Submit */}
           <div className='pt-2'>
-            {submitting ? (
+            {submitting || compressing ? (
               <button
                 disabled
                 className='font-semibold px-8 py-2.5 rounded-lg text-sm cursor-not-allowed'
@@ -538,7 +704,7 @@ const UpdatePost = () => {
                   color: "var(--text-muted)",
                 }}
               >
-                Submitting...
+                {compressing ? "Optimising photos..." : "Submitting..."}
               </button>
             ) : (
               <button

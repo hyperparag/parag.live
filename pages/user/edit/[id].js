@@ -8,7 +8,8 @@ import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 import User from "@/component/user";
 import { useRouter } from "next/router";
-import { Modal, Upload } from "antd";
+import { Modal, Upload, message } from "antd";
+import { compressImage, formatBytes } from "@/component/utils/compressImage";
 
 const initialState = {
   firstName: "",
@@ -62,6 +63,44 @@ const Edit = () => {
   };
   const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
+  /**
+   * antd calls this before adding the file to the list. Returning false stops
+   * the automatic upload (this Upload has action={false} anyway) and we hand the
+   * compressed File back in place of the original, so the avatar is optimised
+   * before it is ever sent.
+   */
+  const beforeAvatarUpload = async (file) => {
+    const result = await compressImage(file, { maxDimension: 800 });
+
+    if (result.skipped === "undecodable") {
+      message.error({
+        content:
+          "That image could not be read by this browser. Please save it as JPG or PNG and try again.",
+        duration: 6,
+      });
+      return Upload.LIST_IGNORE;
+    }
+
+    if (result.compressed) {
+      message.success({
+        content: `Optimised: ${formatBytes(result.originalSize)} to ${formatBytes(result.size)}`,
+        duration: 3,
+      });
+    }
+
+    setFileList([
+      {
+        uid: `avatar-${Date.now()}`,
+        name: result.file.name,
+        status: "done",
+        originFileObj: result.file,
+        url: URL.createObjectURL(result.file),
+      },
+    ]);
+
+    return false;
+  };
+
   async function getUser(users) {
     try {
       const response = await axios.get(
@@ -107,7 +146,9 @@ const Edit = () => {
         },
       )
         .then((res) => res.json())
-        .then((data) => (datas.avater = data.payload.url));
+        .then((data) => {
+          if (data?.payload?.url) datas.avater = data.payload.url;
+        });
     }
 
     await axios
@@ -214,8 +255,10 @@ const Edit = () => {
           <div className='profile'>
             <Upload
               action={false}
+              accept='image/*'
               listType='picture-card'
               fileList={fileList}
+              beforeUpload={beforeAvatarUpload}
               onPreview={handlePreview}
               onChange={handleChange}
             >

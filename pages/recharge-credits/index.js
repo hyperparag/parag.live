@@ -212,29 +212,21 @@ const Credits = () => {
               { label: "Coinbase", href: "https://www.coinbase.com/signin" },
               { label: "abra.com", href: "https://abra.com/" },
               { label: "bitcoin.com", href: "https://bitcoin.com/" },
-              { label: "binance.com", href: "https://bitcoin.com/" },
+              { label: "binance.com", href: "https://www.binance.com/" },
             ].map((item, i) => (
               <a
                 key={i}
                 href={item.href}
                 target='_blank'
                 rel='noopener noreferrer'
+                className='btn-accent'
                 style={{
-                  background: "var(--accent)",
-                  color: "#fff",
                   padding: "6px 16px",
                   borderRadius: "6px",
                   fontSize: "0.8rem",
                   fontWeight: 600,
                   textDecoration: "none",
-                  transition: "all 0.2s",
                 }}
-                onMouseEnter={(e) =>
-                  (e.target.style.background = "var(--accent-hover)")
-                }
-                onMouseLeave={(e) =>
-                  (e.target.style.background = "var(--accent)")
-                }
               >
                 {item.label}
               </a>

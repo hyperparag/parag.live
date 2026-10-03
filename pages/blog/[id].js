@@ -34,7 +34,9 @@ const BlogDetails = () => {
   async function getAds(data) {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/sideads/category?category=${data?.[0]?.category}`,
+        `https://paraglive-backend.vercel.app/api/sideads/category?category=${encodeURIComponent(
+          data?.[0]?.category ?? "",
+        )}&fallback=1`,
       );
 
       const datas = response.data.ads;
