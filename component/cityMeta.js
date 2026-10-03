@@ -2,11 +2,11 @@ export const findCityMeta = ({ city, state }) => {
   const datas = [
     {
       id: 1,
-      title: `Find The Best Cheap escorts at Skip the Game in ${city}  ${state?.slice(
+      title: `Find The Best Cheap escorts at Parag in ${city}  ${state?.slice(
         0,
         2,
       )}`,
-      description: `Explore the Backpage alternatives to parag ${city} ${state}. For Escort alligator & Erotic Massage by our Cheap & Tryst escort services`,
+      description: `Explore the Backpage alternatives to Parag ${city} ${state}. For Escort alligator & Erotic Massage by our Cheap & Tryst escort services`,
       keywords: ``,
       city: "Auburn",
     },
