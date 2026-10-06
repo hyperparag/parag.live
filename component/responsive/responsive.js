@@ -27,17 +27,29 @@ const Responsive = () => {
     getads();
   }, []);
 
+  // Nothing to show until an admin has added a banner.
+  if (loading || !ads?.image) return null;
+
   return (
-    <div className='my-5'>
-      {loading ? (
-        "Loading..."
-      ) : (
-        <div>
-          <Link href={ads?.link ?? "/"}>
-            <img className='sm:w-[600px]  m-auto mt-10' src={ads?.image} />
-          </Link>
-        </div>
-      )}
+    <div className='my-4' style={{ padding: "0 16px" }}>
+      <Link
+        href={ads?.link || "/"}
+        target='_blank'
+        rel='noopener noreferrer nofollow sponsored'
+      >
+        <img
+          src={ads.image}
+          alt='Sponsored'
+          style={{
+            display: "block",
+            width: "100%",
+            maxWidth: "1200px",
+            height: "auto",
+            margin: "0 auto",
+            borderRadius: "8px",
+          }}
+        />
+      </Link>
     </div>
   );
 };

@@ -10,6 +10,11 @@ import User from "@/component/user";
 import { useRouter } from "next/router";
 import { Modal, Upload, message } from "antd";
 import { compressImage, formatBytes } from "@/component/utils/compressImage";
+import { useSession } from "next-auth/react";
+import Head from "next/head";
+import Header from "@/component/header/header";
+import Footer from "@/component/footer/footer";
+import { jsonAuthHeaders } from "@/component/utils/api";
 
 const initialState = {
   firstName: "",
@@ -41,7 +46,11 @@ const Edit = () => {
   const [imagLoading, setUpdateLoding] = useState(false);
   const [passLoaidng, setPassLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { users, usersStringfy } = User();
+  const { users } = User();
+  const { data: session } = useSession();
+  // The compressed avatar, kept separately from antd's list (which swaps it
+  // back to the original file).
+  const [avatarFile, setAvatarFile] = useState(null);
 
   const dispatch = (e) => {
     setState({ ...state, [e.type]: e.payload });
@@ -61,7 +70,14 @@ const Edit = () => {
       file.name || file.url.substring(file.url.lastIndexOf("/") + 1),
     );
   };
-  const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+  // Selecting a file is handled in beforeAvatarUpload; this only has to react
+  // to the user removing the picture.
+  const handleChange = ({ fileList: newFileList }) => {
+    if (newFileList.length === 0) {
+      setFileList([]);
+      setAvatarFile(null);
+    }
+  };
 
   /**
    * antd calls this before adding the file to the list. Returning false stops
@@ -88,6 +104,7 @@ const Edit = () => {
       });
     }
 
+    setAvatarFile(result.file);
     setFileList([
       {
         uid: `avatar-${Date.now()}`,
@@ -126,109 +143,102 @@ const Edit = () => {
   // updata profile
   const updateProfile = async () => {
     setUpdateLoding(true);
-    const datas = { ...state };
-    const options = {
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${usersStringfy}`,
-      },
+    // Only the fields the form edits. The whole state used to be sent,
+    // including the loaded user record.
+    const datas = {
+      firstName: state.firstName,
+      lastName: state.lastName,
+      email: state.email,
+      phone: state.phone,
     };
-    if (fileList[0]) {
-      const formData = new FormData();
+    const options = { headers: jsonAuthHeaders(session) };
 
-      formData.append("images", fileList[0].originFileObj);
+    try {
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("images", avatarFile);
 
-      await fetch(
-        "https://paraglive-backend.vercel.app/api/image/upload-file",
-        {
-          method: "POST",
-          body: formData,
-        },
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          if (data?.payload?.url) datas.avater = data.payload.url;
-        });
-    }
+        const res = await fetch(
+          "https://paraglive-backend.vercel.app/api/image/upload-file",
+          { method: "POST", body: formData },
+        );
+        const data = await res.json();
+        if (!res.ok || !data?.payload?.url) {
+          throw new Error("The picture could not be uploaded.");
+        }
+        datas.avater = data.payload.url;
+      }
 
-    await axios
-      .patch(
+      const res = await axios.patch(
         `https://paraglive-backend.vercel.app/api/users/${state.userData._id}`,
         datas,
         options,
-      )
-      .then((res) => {
-        setUpdateLoding(false);
-        if (res.data.status == "success") {
-          Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: "Your Profile has been updated",
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(router.push("/dashboard/profile"));
-        }
+      );
+      if (res.data.status == "success") {
+        await Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Your Profile has been updated",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        router.push("/dashboard/profile");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Could not update your profile",
+        text:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Please try again.",
       });
+    } finally {
+      setUpdateLoding(false);
+    }
   };
 
   const updatePassword = async () => {
-    setPassLoading(true);
     if (state.newConPass !== state.newPass) {
       setState({ ...state, passError: "New Passwords are not matched" });
       return;
-    } else {
-      setState({ ...state, passError: "" });
     }
+    setState({ ...state, passError: "" });
+    setPassLoading(true);
 
-    const password = state.newPass;
-    const oldPassword = state.oldPassword;
-    const data = { password, oldPassword };
-    const options = {
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${usersStringfy}`,
-      },
-    };
+    const data = { password: state.newPass, oldPassword: state.oldPassword };
+    const options = { headers: jsonAuthHeaders(session) };
 
-    await axios
-      .patch(
+    try {
+      const res = await axios.patch(
         `https://paraglive-backend.vercel.app/api/users/password/${state.userData._id}`,
         data,
         options,
-      )
-      .then((res) => {
-        setPassLoading(true);
-        if (res.data.status == "success") {
-          Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: "Your work has been saved",
-            showConfirmButton: false,
-            timer: 1500,
-          }).then(
-            setState({
-              ...state,
-              oldPassword: "",
-              newConPass: "",
-              newPass: "",
-              passError: "",
-            }),
-          );
-        }
-      })
-      .then(router.push("/dashboard/profile"))
-      .catch((err) => {
-        setPassLoading(true);
-        if (err.response.status == 422) {
-          Swal.fire({
-            position: "top-center",
-            icon: "failed",
-            title: "Old pass is wrong",
-            showConfirmButton: false,
-            timer: 1500,
-          });
-        }
+      );
+      if (res.data.status == "success") {
+        await Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Your password has been changed",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        router.push("/dashboard/profile");
+      } else {
+        Swal.fire({ icon: "error", title: "Old password is wrong" });
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title:
+          err?.response?.status == 422
+            ? "Old password is wrong"
+            : "Could not change the password",
       });
+    } finally {
+      setPassLoading(false);
+    }
   };
 
   const uploadButton = (
@@ -245,6 +255,12 @@ const Edit = () => {
   );
 
   return (
+    <div className='page-bg' style={{ minHeight: "100vh" }}>
+      <Head>
+        <title>Edit My Profile</title>
+      </Head>
+      <Header />
+      <div style={{ padding: "24px 0" }}>
     <div className={style.container}>
       {loading ? (
         <button className='btn loading bg-transparent lowercase border-0 m-auto w-full'>
@@ -369,7 +385,7 @@ const Edit = () => {
                 onChange={(e) =>
                   dispatch({ type: "oldPassword", payload: e.target.value })
                 }
-                type='text'
+                type='password'
                 placeholder='Current Password'
                 className={`${style.readOnlyInputs} input-bordered input-success w-full`}
                 style={{ background: "var(--surface-2)", color: "var(--text)" }}
@@ -382,7 +398,7 @@ const Edit = () => {
                 onChange={(e) =>
                   dispatch({ type: "newPass", payload: e.target.value })
                 }
-                type='text'
+                type='password'
                 placeholder='New Password'
                 className={`${style.readOnlyInputs} input-bordered input-success w-full`}
                 style={{ background: "var(--surface-2)", color: "var(--text)" }}
@@ -395,7 +411,7 @@ const Edit = () => {
                 onChange={(e) =>
                   dispatch({ type: "newConPass", payload: e.target.value })
                 }
-                type='text'
+                type='password'
                 placeholder='Confirm New Password'
                 className={`${style.readOnlyInputs} input-bordered input-success w-full`}
                 style={{ background: "var(--surface-2)", color: "var(--text)" }}
@@ -423,6 +439,9 @@ const Edit = () => {
           </div>
         </>
       )}
+    </div>
+      </div>
+      <Footer />
     </div>
   );
 };

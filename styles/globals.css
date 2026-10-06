@@ -481,35 +481,116 @@ a {
   color: var(--text) !important;
 }
 
-/* Date picker panel, used by the schedule-post control. */
+/* Themed antd modals */
+.themed-modal .ant-modal-content { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.themed-modal .ant-modal-header { background: var(--surface); }
+.themed-modal .ant-modal-title { color: var(--text); }
+.themed-modal .ant-modal-close { color: var(--text-secondary); }
+.themed-modal .ant-modal-close:hover { color: var(--text); }
+.themed-modal .ant-modal-body { color: var(--text); }
+.themed-modal label { color: var(--text); }
+.themed-modal input { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; }
+.themed-modal input::placeholder { color: var(--text-muted); }
+
+/* Date picker panel, used by the schedule-post control.
+   Every part of the panel is themed explicitly. Previously only some cells were,
+   so in dark mode the day numbers, the time columns and the Now/OK footer fell
+   back to Ant's own colours and came out faint or unreadable. */
 .ant-picker-dropdown .ant-picker-panel-container {
-  background: var(--surface-2) !important;
-  border: 1px solid var(--border) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 .ant-picker-panel,
+.ant-picker-datetime-panel,
+.ant-picker-time-panel,
+.ant-picker-date-panel,
+.ant-picker-month-panel,
+.ant-picker-year-panel {
+  background: transparent !important;
+  border-color: var(--border) !important;
+}
 .ant-picker-header,
-.ant-picker-content th,
+.ant-picker-footer,
+.ant-picker-time-panel,
+.ant-picker-time-panel-column:not(:first-child),
+.ant-picker-datetime-panel .ant-picker-time-panel {
+  border-color: var(--border) !important;
+}
+.ant-picker-header,
+.ant-picker-header button,
+.ant-picker-header-view,
+.ant-picker-header-view button,
 .ant-picker-cell,
 .ant-picker-footer {
   color: var(--text) !important;
-  border-color: var(--border) !important;
 }
-.ant-picker-header button,
-.ant-picker-header-view {
-  color: var(--text) !important;
+.ant-picker-header button:hover,
+.ant-picker-header-view button:hover {
+  color: var(--text-secondary) !important;
 }
+.ant-picker-content th {
+  color: var(--text-secondary) !important;
+}
+/* Days outside the shown month, and unavailable (past) days. */
+.ant-picker-cell:not(.ant-picker-cell-in-view) .ant-picker-cell-inner,
 .ant-picker-cell-disabled .ant-picker-cell-inner {
   color: var(--text-muted) !important;
 }
-.ant-picker-cell-in-view .ant-picker-cell-inner {
+.ant-picker-cell-disabled::before {
+  background: var(--surface-2) !important;
+}
+.ant-picker-cell-in-view:not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
   color: var(--text) !important;
 }
+.ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+  background: var(--surface-hover) !important;
+}
+/* Today gets an outline; the chosen day is solid, with inverse text so it stays
+   legible whichever way the accent colour flips between themes. */
+.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: var(--accent) !important;
+}
 .ant-picker-cell-selected .ant-picker-cell-inner,
-.ant-picker-cell-today .ant-picker-cell-inner {
+.ant-picker-cell-selected:hover .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-selected:not(.ant-picker-cell-disabled) .ant-picker-cell-inner {
+  background: var(--accent) !important;
   color: var(--text-inverse) !important;
+}
+/* Time columns */
+.ant-picker-time-panel-column {
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
   color: var(--text) !important;
+}
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background: var(--accent) !important;
+  color: var(--text-inverse) !important;
+}
+.ant-picker-time-panel-column > li.ant-picker-time-panel-cell:not(.ant-picker-time-panel-cell-selected) .ant-picker-time-panel-cell-inner:hover {
+  background: var(--surface-hover) !important;
+}
+/* Footer: "Now" link and the OK button */
+.ant-picker-now-btn,
+.ant-picker-today-btn {
+  color: var(--text) !important;
+  font-weight: 600;
+}
+.ant-picker-now-btn:hover,
+.ant-picker-today-btn:hover {
+  color: var(--text-secondary) !important;
+}
+.ant-picker-ok .ant-btn,
+.ant-picker-ok .ant-btn-primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--text-inverse) !important;
+}
+.ant-picker-ok .ant-btn[disabled] {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--text-muted) !important;
 }
 .ant-radio-wrapper {
   color: var(--text) !important;
@@ -606,7 +687,7 @@ th {
 
 .active {
   background: var(--accent) !important;
-  color: #fff !important;
+  color: var(--text-inverse) !important;
 }
 
 @media only screen and (max-width: 768px) {

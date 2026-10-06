@@ -155,15 +155,17 @@ const Blogs = () => {
                         e.currentTarget.style.transform = "translateY(0)";
                       }}
                     >
-                      <img
-                        style={{
-                          width: "100%",
-                          height: "200px",
-                          objectFit: "cover",
-                        }}
-                        src={a?.image}
-                        alt={a?.title}
-                      />
+                      {/^https?:\/\//.test(a?.image || "") && (
+                        <img
+                          style={{
+                            width: "100%",
+                            height: "200px",
+                            objectFit: "cover",
+                          }}
+                          src={a?.image}
+                          alt={a?.altText || a?.title}
+                        />
+                      )}
                       <div style={{ padding: "16px" }}>
                         <div style={{ marginBottom: "8px" }}>
                           {a?.category && (

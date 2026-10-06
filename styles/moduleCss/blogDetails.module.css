@@ -17,9 +17,13 @@
   margin: 20px auto auto;
 }
 .blogImages {
-  width: fit-content;
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
   margin: auto;
-  height: fit-content;
   border-radius: 8px;
 }
 .category {

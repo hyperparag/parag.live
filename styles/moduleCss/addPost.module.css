@@ -21,7 +21,7 @@
 .postButton {
   background-color: var(--accent);
   border-radius: 8px;
-  color: #fff;
+  color: var(--text-inverse);
   cursor: pointer;
   font-weight: 700;
   padding: 10px 15px;

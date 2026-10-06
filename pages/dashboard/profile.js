@@ -306,6 +306,45 @@ const Dashboards = () => {
                 Ads: {ads?.length ? page : 0}
               </span>
             </div>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "12px" }}
+            >
+              {users?.avater && users.avater !== "avater" ? (
+                <img
+                  src={users.avater}
+                  alt='Profile'
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    border: "2px solid var(--border)",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: "50%",
+                    background: "var(--surface-2)",
+                    border: "2px solid var(--border)",
+                    color: "var(--text)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 700,
+                    fontSize: "1.1rem",
+                  }}
+                >
+                  {(users?.name || session?.user?.name || session?.user?.email || "?")
+                    .trim()
+                    .split(/\s+/)
+                    .slice(0, 2)
+                    .map((w) => w[0]?.toUpperCase())
+                    .join("")}
+                </div>
+              )}
             <div style={{ textAlign: "right" }}>
               <p
                 style={{
@@ -328,6 +367,7 @@ const Dashboards = () => {
               >
                 Edit Profile
               </Link>
+            </div>
             </div>
           </div>
 

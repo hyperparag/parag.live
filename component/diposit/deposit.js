@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { jsonAuthHeaders } from "@/component/utils/api";
 
 const Deposit = () => {
   const router = useRouter();
@@ -12,6 +13,8 @@ const Deposit = () => {
   const [loading, setLoading] = useState(false);
   const [currency, setCurrency] = useState("");
   const [address, setAddress] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const { data: session } = useSession();
 
   const showModal = (e) => {
@@ -28,6 +31,7 @@ const Deposit = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg("");
     const trxid = e.target.trxid.value;
     const amount = e.target.amount.value;
     const email = session.user.email;
@@ -35,26 +39,45 @@ const Deposit = () => {
     const userId = session.user.id;
     const provider = currency;
 
-    const data = { email, trxid, amount, provider, userName, userId };
+    const data = {
+      email,
+      trxid,
+      amount,
+      provider,
+      userName,
+      userId,
+      referralCode: referralCode.trim().toUpperCase(),
+    };
 
-    await axios
-      .post("https://paraglive-backend.vercel.app/api/deposit", data)
-      .then((response) => {
-        if (response.data.status == "success") {
-          Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title:
-              "Your deposit will be verified and credit will be added to your wallet.",
-            showConfirmButton: false,
-            timer: 2500,
-          }).then(
-            setTimeout(() => {
-              router.reload();
-            }, 500),
-          );
-        }
-      });
+    try {
+      const response = await axios.post(
+        "https://paraglive-backend.vercel.app/api/deposit",
+        data,
+        { headers: jsonAuthHeaders(session) },
+      );
+      if (response.data.status == "success") {
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title:
+            "Your deposit will be verified and credit will be added to your wallet.",
+          showConfirmButton: false,
+          timer: 2500,
+        });
+        setTimeout(() => {
+          router.reload();
+        }, 2500);
+      } else {
+        setErrorMsg(response.data?.message || "Could not submit deposit.");
+      }
+    } catch (error) {
+      setErrorMsg(
+        error?.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -174,6 +197,7 @@ const Deposit = () => {
           </div> */}
         </div>
         <Modal
+          className='themed-modal'
           title={`Deposit ${currency}`}
           open={open}
           onCancel={() => setOpen(false)}
@@ -184,27 +208,38 @@ const Deposit = () => {
             hidden: true,
           }}
         >
-          <div
-            className='m-auto p-2'
-            style={{ background: "var(--surface-2)" }}
-          >
-            <p className='flex gap-2 items-center justify-center'>
-              {address}
+          <div className='m-auto p-2'>
+            <div
+              className='flex gap-2 items-center justify-center p-2 mb-3 rounded font-mono break-all'
+              style={{
+                background: "var(--surface)",
+                color: "var(--text)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <span style={{ color: "var(--text)" }}>{address}</span>
               <Tooltip title='copy'>
-                <div onClick={() => handleCopy(`${address}`)}>
-                  {" "}
+                <div
+                  onClick={() => handleCopy(`${address}`)}
+                  style={{ color: "var(--text)" }}
+                >
                   <FaCopy className='text-xl cursor-pointer' />
                 </div>
               </Tooltip>
-            </p>
-            <QRCode className='m-auto' value={address} />
+            </div>
+            <div
+              className='m-auto p-3 rounded'
+              style={{ background: "#fff", width: "fit-content" }}
+            >
+              <QRCode value={address} bgColor='#fff' color='#000' />
+            </div>
           </div>
-          <hr className='my-5' />
-          <small>
+          <hr className='my-5' style={{ borderColor: "var(--border)" }} />
+          <small style={{ color: "var(--text-secondary)" }}>
             After completing the payment, please send us the transaction ID and
             the amount you have sent.
           </small>
-          <hr className='my-5' />
+          <hr className='my-5' style={{ borderColor: "var(--border)" }} />
           <form onSubmit={handleSubmit}>
             <label>Transaction ID</label>
             <input
@@ -221,6 +256,26 @@ const Deposit = () => {
               className='w-full'
               style={{ background: "var(--surface-2)", color: "var(--text)" }}
             />
+
+            <label className='pt-5 block mt-3'>Referral code (optional)</label>
+            <input
+              name='referralCode'
+              placeholder='e.g. AB12CD34'
+              maxLength={12}
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              className='w-full'
+              style={{ background: "var(--surface-2)", color: "var(--text)" }}
+            />
+            <small style={{ color: "var(--text-secondary)" }}>
+              If someone invited you, enter their code. They earn 50% of what
+              you pay as referral earnings, at no extra cost to you.
+            </small>
+            {errorMsg && (
+              <p style={{ color: "var(--error)" }} className='mt-2 text-sm'>
+                {errorMsg}
+              </p>
+            )}
             {loading ? (
               <button
                 disabled

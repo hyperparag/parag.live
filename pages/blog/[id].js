@@ -79,13 +79,17 @@ const BlogDetails = () => {
               className='p-3 m-4 sm:m-10'
               style={{ background: "var(--surface)" }}
             >
-              <Image
-                className={style.blogImages}
-                width={500}
-                height={100}
-                src={blog?.image}
-                alt='blog image'
-              />
+              {/* A plain <img> that scales to the column: next/image with a fixed
+                  500x100 box distorted every picture and refused any host that
+                  was not whitelisted in next.config.js. Posts saved without a
+                  picture hold the placeholder "avater", which is not a URL. */}
+              {/^https?:\/\//.test(blog?.image || "") && (
+                <img
+                  className={style.blogImages}
+                  src={blog.image}
+                  alt={blog?.altText || blog?.title || "blog image"}
+                />
+              )}
               <br />
               {blog?.category == "Adult" ? (
                 <span className={style.category}> {blog?.category} </span>

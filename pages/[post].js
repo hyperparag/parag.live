@@ -2,6 +2,7 @@ import { findCityMeta } from "@/component/cityMeta";
 import Footer from "@/component/footer/footer";
 import Gallery from "@/component/gallery/gallery";
 import Header from "@/component/header/header";
+import Responsive from "@/component/responsive/responsive";
 import List from "@/component/list/list";
 import OnlyTextList from "@/component/onlyTextList/OnlyTextList";
 import { Pagination } from "antd";
@@ -268,6 +269,9 @@ const PostList = () => {
           </>
         )}
       </div>
+
+      {/* Responsive banner ad (managed under Ads > Responsive Ad) */}
+      <Responsive />
 
       {/* Layout toggle */}
       <div
