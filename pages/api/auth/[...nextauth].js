@@ -12,7 +12,7 @@ export const authOptions = {
   callbacks: {
     async signIn({ user, profile }) {
       await axios
-        .post("https://paraglive-backend.vercel.app/api/users/save", profile)
+        .post("  https://paraglive-backend.vercel.app/api/users/save", profile)
 
         .then((response) => {
           user.id = response.data.isExist._id;

@@ -71,7 +71,7 @@ const UpdatePost = () => {
     const fetchPost = async () => {
       try {
         const response = await axios.get(
-          `https://paraglive-backend.vercel.app/api/products/${router.query.id}`,
+          `  https://paraglive-backend.vercel.app/api/products/${router.query.id}`,
         );
         const post = Array.isArray(response.data.data)
           ? response.data.data[0]

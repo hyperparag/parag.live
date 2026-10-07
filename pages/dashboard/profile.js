@@ -31,7 +31,7 @@ const Dashboards = () => {
     if (session) {
       try {
         const response = await axios.get(
-          `https://paraglive-backend.vercel.app/api/products/posterid/${session?.user?.id}?page=${pages}&searchText=${searchText}&status=${status}&category=${category}`,
+          `  https://paraglive-backend.vercel.app/api/products/posterid/${session?.user?.id}?page=${pages}&searchText=${searchText}&status=${status}&category=${category}`,
           { method: "GET" },
         );
         setLoading(false);

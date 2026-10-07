@@ -84,8 +84,8 @@ const List = ({ data1, data2, category }) => {
           padding: "4px 14px",
           borderRadius: "4px",
           background: filled ? "var(--text)" : "transparent",
-          color: filled ? "var(--surface)" : "var(--text-muted)",
-          border: filled ? "none" : "1px solid var(--border)",
+          color: filled ? "var(--surface)" : "var(--text)",
+          border: filled ? "none" : "1px solid var(--text-secondary)",
           whiteSpace: "nowrap",
         }}
       >
@@ -115,10 +115,10 @@ const List = ({ data1, data2, category }) => {
         </div>
       )}
 
-      {(data2?.length > 0 || (!data1?.length && !data2?.length)) && (
+      {data2?.length > 0 && (
         <>
           <SectionHeader label='Regular Ads' />
-          {(data2 ?? []).map((a, index) => (
+          {data2.map((a, index) => (
             <div key={index}>
               {a.objects.map((b) => (
                 <AdCard key={b._id} b={b} city={router.query.post} />
@@ -126,6 +126,19 @@ const List = ({ data1, data2, category }) => {
             </div>
           ))}
         </>
+      )}
+
+      {!data1?.length && !data2?.length && (
+        <p
+          style={{
+            color: "var(--text-muted)",
+            fontSize: "0.9rem",
+            textAlign: "center",
+            padding: "24px 0",
+          }}
+        >
+          No ads found.
+        </p>
       )}
     </div>
   );

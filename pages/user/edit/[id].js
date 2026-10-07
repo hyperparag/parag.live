@@ -121,7 +121,7 @@ const Edit = () => {
   async function getUser(users) {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/users/${users._id}`,
+        `  https://paraglive-backend.vercel.app/api/users/${users._id}`,
       );
       const data = response.data.data.user;
       setLoading(false);
@@ -159,7 +159,7 @@ const Edit = () => {
         formData.append("images", avatarFile);
 
         const res = await fetch(
-          "https://paraglive-backend.vercel.app/api/image/upload-file",
+          "  https://paraglive-backend.vercel.app/api/image/upload-file",
           { method: "POST", body: formData },
         );
         const data = await res.json();
@@ -170,7 +170,7 @@ const Edit = () => {
       }
 
       const res = await axios.patch(
-        `https://paraglive-backend.vercel.app/api/users/${state.userData._id}`,
+        `  https://paraglive-backend.vercel.app/api/users/${state.userData._id}`,
         datas,
         options,
       );
@@ -212,7 +212,7 @@ const Edit = () => {
 
     try {
       const res = await axios.patch(
-        `https://paraglive-backend.vercel.app/api/users/password/${state.userData._id}`,
+        `  https://paraglive-backend.vercel.app/api/users/password/${state.userData._id}`,
         data,
         options,
       );

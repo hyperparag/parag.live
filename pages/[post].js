@@ -2,7 +2,6 @@ import { findCityMeta } from "@/component/cityMeta";
 import Footer from "@/component/footer/footer";
 import Gallery from "@/component/gallery/gallery";
 import Header from "@/component/header/header";
-import Responsive from "@/component/responsive/responsive";
 import List from "@/component/list/list";
 import OnlyTextList from "@/component/onlyTextList/OnlyTextList";
 import { Pagination } from "antd";
@@ -35,7 +34,7 @@ const PostList = () => {
   async function getPosts() {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/products/all?page=${current}&category=${category}&state=${router?.query?.post}`,
+        `  https://paraglive-backend.vercel.app/api/products/all?page=${current}&category=${category}&state=${router?.query?.post}`,
       );
 
       setLinks(response.data.links?.[0]);
@@ -145,7 +144,6 @@ const PostList = () => {
     "Women-Men",
     "Men-Men",
     "Men-Women",
-    "Transgender",
     "Women-Women",
   ];
 
@@ -270,9 +268,6 @@ const PostList = () => {
         )}
       </div>
 
-      {/* Responsive banner ad (managed under Ads > Responsive Ad) */}
-      <Responsive />
-
       {/* Layout toggle */}
       <div
         style={{
@@ -283,7 +278,7 @@ const PostList = () => {
           padding: "16px",
         }}
       >
-        {["list", "gallery"].map((l) => (
+        {["list", "text", "gallery"].map((l) => (
           <button
             key={l}
             onClick={() => setLayout(l)}
@@ -302,7 +297,7 @@ const PostList = () => {
               transition: "all 0.2s",
             }}
           >
-            {l === "list" ? "Ads List" : "Gallery"}
+            {l === "list" ? "Ads" : l === "text" ? "List" : "Gallery"}
           </button>
         ))}
       </div>
@@ -323,8 +318,29 @@ const PostList = () => {
             maxWidth: "900px",
             margin: "0 auto",
             padding: "0 12px 48px",
+            position: "relative",
           }}
         >
+          {age != undefined && sideAds?.length > 0 && (
+            <aside className='side-rail'>
+              <div className='side-rail-inner'>
+                {sideAds.map((ad) => (
+                  <a
+                    key={ad._id}
+                    href={ad.link || "#"}
+                    target='_blank'
+                    rel='noreferrer nofollow sponsored'
+                    className='side-rail-card'
+                  >
+                    {ad.image && ad.image !== "undefined" ? (
+                      <img src={ad.image} alt={ad.title || "Sponsored"} />
+                    ) : null}
+                    {ad.title && <p>{ad.title}</p>}
+                  </a>
+                ))}
+              </div>
+            </aside>
+          )}
           <div
             style={{
               background: "var(--surface)",
@@ -454,7 +470,7 @@ const PostList = () => {
                 {content}
 
                 {sideAds?.length > 0 && (
-                  <div style={{ marginTop: "28px" }}>
+                  <div className='side-ads-bottom' style={{ marginTop: "28px" }}>
                     <h2
                       style={{
                         color: "var(--text)",
@@ -495,9 +511,11 @@ const PostList = () => {
                           <div style={{ padding: "8px 10px" }}>
                             <p
                               style={{
-                                color: "var(--text-secondary)",
-                                fontSize: "0.78rem",
-                                fontWeight: 500,
+                                color: "var(--text)",
+                                fontSize: "0.85rem",
+                                fontWeight: 600,
+                                lineHeight: 1.35,
+                                overflowWrap: "anywhere",
                               }}
                             >
                               {ad.title}

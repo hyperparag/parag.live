@@ -27,7 +27,7 @@ const Ahad = () => {
   async function getPosts() {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/products/all?page=${current}&category=${router?.query?.names?.[2]}&state=${router?.query?.names?.[0]}&cat=${router?.query?.names?.[1]}`,
+        `  https://paraglive-backend.vercel.app/api/products/all?page=${current}&category=${router?.query?.names?.[2]}&state=${router?.query?.names?.[0]}&cat=${router?.query?.names?.[1]}`,
       );
       setPage(response.data.pages);
       setGallery(response.data.data.products);

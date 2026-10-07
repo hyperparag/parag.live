@@ -23,7 +23,7 @@ const Blogs = () => {
   async function getBlogs() {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/blogs?page=${blogcurrent}&q=${keyword}&cat=${catKey}`,
+        `  https://paraglive-backend.vercel.app/api/blogs?page=${blogcurrent}&q=${keyword}&cat=${catKey}`,
       );
       const data = response.data;
       setBlogs(data);

@@ -98,13 +98,6 @@ export const findMeta = (data) => {
       category: "Men-Women",
     },
     {
-      id: 12,
-      title: `${data?.[0]} TS Escorts tranny and transsexual Models for T4M Fun`,
-      description: `Find the hottest ${data?.[0]} TS escorts and transsexual models in town. Find your perfect match for a memorable experience. Whether you're looking for a Transgender, transvestite, tranny, she male, or t4m encounter, we've got you covered. Explore now!`,
-      keywords: `${data?.[0]} TS, T4M, Transsexual escorts, Transsexual models,Transgender, Transvestite, Tranny, She male`,
-      category: "Transgender",
-    },
-    {
       id: 13,
       title: `${data?.[0]} women seek women W4W, Lesbians, dyke, Femme and Butches`,
       description: `Find your perfect match with ${data?.[0]} Women Seek Women! Discover a community of like-minded women seeking connections, 

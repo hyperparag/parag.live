@@ -12,7 +12,7 @@ import { FaTrash, FaUser } from "react-icons/fa";
 
 import { compressImage, formatBytes } from "@/component/utils/compressImage";
 
-const BACKEND = "https://paraglive-backend.vercel.app";
+const BACKEND = "  https://paraglive-backend.vercel.app";
 const MAX_IMAGES = 2;
 
 const Verify = () => {
