@@ -45,10 +45,6 @@ export const findPostMeta = (data) => {
       keywords: `Men Women, M4W, ${data?.city}, Incall, Outcall, bbbj, Date, Hot, Escorts, Adult, Fun, cash payment, Asain Girls, Girlfriend, VIP service, Best Service, real Service, Full Service, Top Service, young girl, pretty, cute`,
     },
     {
-      name: "Transgender",
-      keywords: `Transgender, TS, ${data?.city}, Incall, Outcall, bbbj, Date, Hot, Escorts, Adult, Fun, cash payment, Asain Girls, Girlfriend, VIP service, Best Service, real Service, Full Service, Top Service, young girl, pretty, cute`,
-    },
-    {
       name: "Women-Women",
       keywords: `Women Women, W4W, ${data?.city}, Incall, Outcall, bbbj, Date, Hot, Escorts, Adult, Fun, cash payment, Asain Girls, Girlfriend, VIP service, Best Service, real Service, Full Service, Top Service, young girl, pretty, cute`,
     },

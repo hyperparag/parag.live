@@ -175,7 +175,7 @@
 //     formData.append("images", selectedFiles[3]);
 
 //     await fetch(
-//       "https://paraglive-backend.vercel.app/api/files2/files",
+//       "  https://paraglive-backend.vercel.app/api/files2/files",
 //       {
 //         method: "POST",
 //         body: formData,
@@ -233,7 +233,7 @@
 //     }
 
 //     data.posterId = session?.user?.id;
-//     await fetch("https://paraglive-backend.vercel.app/api/products", {
+//     await fetch("  https://paraglive-backend.vercel.app/api/products", {
 //       method: "POST",
 //       headers: {
 //         "content-type": "application/json",
@@ -246,7 +246,7 @@
 //         const newCredit = users?.credit - local?.toFixed(2);
 //         axios
 //           .patch(
-//             `https://paraglive-backend.vercel.app/api/users/${session?.user?.id}`,
+//             `  https://paraglive-backend.vercel.app/api/users/${session?.user?.id}`,
 //             {
 //               credit: newCredit,
 //             },

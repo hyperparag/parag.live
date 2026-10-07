@@ -17,7 +17,7 @@ const Drawer = (data) => {
   async function getUser() {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/countries/search?q=${data?.category}`,
+        `  https://paraglive-backend.vercel.app/api/countries/search?q=${data?.category}`,
       );
       const cityName = response.data;
       const usa = cities.find((a) => a.name == "United States");

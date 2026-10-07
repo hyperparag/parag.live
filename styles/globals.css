@@ -752,3 +752,36 @@ th {
   justify-content: center;
   padding: 80px 0;
 }
+
+/* Right-side ad rail: sits in the empty gap beside the 900px content column */
+.side-rail { display: none; }
+@media (min-width: 1300px) {
+  .side-rail {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin-left: 4px;
+    width: 180px;
+    height: 100%;
+  }
+  .side-rail-inner {
+    position: sticky;
+    top: 86px; /* sticky header is 70px tall */
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .side-rail-card {
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .side-rail-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+  .side-rail-card p { margin: 0; padding: 10px 12px; font-size: 0.85rem; font-weight: 600; line-height: 1.35; color: var(--text); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .side-ads-bottom { display: none; }
+}

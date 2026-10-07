@@ -9,7 +9,7 @@ const Responsive = () => {
   async function getads() {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/responsive-ads/`,
+        `  https://paraglive-backend.vercel.app/api/responsive-ads/`,
         {
           method: "GET",
         },

@@ -10,7 +10,7 @@
 import Cookies from "js-cookie";
 
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "https://paraglive-backend.vercel.app";
+  process.env.NEXT_PUBLIC_API_URL || "  https://paraglive-backend.vercel.app";
 
 export const api = (path = "") =>
   `${API_BASE}${path.startsWith("/") ? path : `/${path}`}`;

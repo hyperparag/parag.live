@@ -5,92 +5,105 @@ import React from "react";
 const OnlyTextList = ({ data1, data2, category }) => {
   const router = useRouter();
 
-  const SectionHeader = ({ label, premium }) => (
+  const SectionHeader = ({ label, filled }) => (
     <div
       style={{
-        background: premium
-          ? "linear-gradient(90deg, var(--accent), transparent)"
-          : "linear-gradient(90deg, var(--text-muted), transparent)",
-        padding: "8px 16px",
-        borderRadius: "8px",
-        marginBottom: "12px",
-        width: "fit-content",
-        minWidth: "60%",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+        marginBottom: "10px",
+        marginTop: "8px",
       }}
     >
-      <span style={{ color: "#fff", fontWeight: 700, fontSize: "1rem" }}>
+      <span
+        style={{
+          fontWeight: 700,
+          fontSize: "0.75rem",
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          padding: "4px 14px",
+          borderRadius: "4px",
+          background: filled ? "var(--text)" : "transparent",
+          color: filled ? "var(--surface)" : "var(--text)",
+          border: filled ? "none" : "1px solid var(--text-secondary)",
+          whiteSpace: "nowrap",
+        }}
+      >
         {label}
       </span>
+      <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
     </div>
+  );
+
+  const TitleRow = ({ b }) => (
+    <Link
+      target='_blank'
+      rel='noopener noreferrer'
+      href={`/post/details/${b._id}?city=${router.query.post}&sub=${category}`}
+      className='title-row'
+      style={{
+        display: "block",
+        padding: "10px 12px",
+        color: "var(--text)",
+        textDecoration: "none",
+        fontSize: "0.95rem",
+        fontWeight: 500,
+        borderBottom: "1px solid var(--border)",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {b.name}
+    </Link>
   );
 
   return (
     <div>
       {data1?.length > 0 && (
         <div style={{ marginBottom: "24px" }}>
-          <SectionHeader label="Premium Ads" premium />
+          <SectionHeader label='Premium Ads' filled />
           {data1.map((a, index) => (
             <div key={index}>
-              <ul>
-                {a.objects.map((b) => (
-                  <Link
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    href={`/post/details/${b._id}?city=${router.query.post}&sub=${category}`}
-                    key={b._id}
-                    style={{
-                      display: "block",
-                      padding: "8px 12px",
-                      margin: "4px 0",
-                      color: "var(--accent)",
-                      textDecoration: "none",
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                      borderRadius: "6px",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) => (e.target.style.background = "var(--accent-dim)")}
-                    onMouseLeave={(e) => (e.target.style.background = "transparent")}
-                  >
-                    {b.name}
-                  </Link>
-                ))}
-              </ul>
+              {a.objects.map((b) => (
+                <TitleRow key={b._id} b={b} />
+              ))}
             </div>
           ))}
         </div>
       )}
 
-      <SectionHeader label="Regular Ads" />
-      {data2.map((a, index) => (
-        <div key={index}>
-          <ul>
-            {a.objects.map((b) => (
-              <Link
-                target='_blank'
-                rel='noopener noreferrer'
-                href={`/post/details/${b._id}?city=${router.query.post}&sub=${category}`}
-                key={b._id}
-                style={{
-                  display: "block",
-                  padding: "8px 12px",
-                  margin: "4px 0",
-                  color: "var(--accent)",
-                  textDecoration: "none",
-                  fontSize: "1rem",
-                  fontWeight: 500,
-                  borderRadius: "6px",
-                  transition: "background 0.15s",
-                }}
-                onMouseEnter={(e) => (e.target.style.background = "var(--accent-dim)")}
-                onMouseLeave={(e) => (e.target.style.background = "transparent")}
-              >
-                {b.name} - <span style={{ color: "var(--text-muted)" }}>{b.age}</span>
-              </Link>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {data2?.length > 0 && (
+        <>
+          <SectionHeader label='Regular Ads' />
+          {data2.map((a, index) => (
+            <div key={index}>
+              {a.objects.map((b) => (
+                <TitleRow key={b._id} b={b} />
+              ))}
+            </div>
+          ))}
+        </>
+      )}
+
+      {!data1?.length && !data2?.length && (
+        <p
+          style={{
+            color: "var(--text-muted)",
+            fontSize: "0.9rem",
+            textAlign: "center",
+            padding: "24px 0",
+          }}
+        >
+          No ads found.
+        </p>
+      )}
+
+      <style jsx global>{`
+        .title-row:hover {
+          background: var(--accent-dim);
+        }
+      `}</style>
     </div>
   );
 };

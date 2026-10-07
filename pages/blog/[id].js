@@ -18,7 +18,7 @@ const BlogDetails = () => {
   async function getUser() {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/blogs/single?q=${id}`,
+        `  https://paraglive-backend.vercel.app/api/blogs/single?q=${id}`,
       );
 
       const data = response.data.data.blogs;
@@ -34,7 +34,7 @@ const BlogDetails = () => {
   async function getAds(data) {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/sideads/category?category=${encodeURIComponent(
+        `  https://paraglive-backend.vercel.app/api/sideads/category?category=${encodeURIComponent(
           data?.[0]?.category ?? "",
         )}&fallback=1`,
       );

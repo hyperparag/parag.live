@@ -1,6 +1,6 @@
 //pages/sitemap.xml.js
 const EXTERNAL_DATA_URL =
-  "https://paraglive-backend.vercel.app/api/products/sitemap4";
+  "  https://paraglive-backend.vercel.app/api/products/sitemap4";
 
 function generateSiteMap(posts) {
   return `<?xml version="1.0" encoding="UTF-8"?>

@@ -51,7 +51,7 @@ const Details = () => {
   async function getUser(id) {
     try {
       const response = await axios.get(
-        `https://paraglive-backend.vercel.app/api/products/${id}`,
+        `  https://paraglive-backend.vercel.app/api/products/${id}`,
       );
       setPost(response.data.data[0]);
       setAds(response.data.related);
