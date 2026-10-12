@@ -324,6 +324,26 @@ const PostList = () => {
             position: "relative",
           }}
         >
+          {age != undefined && sideAds?.length > 0 && (
+            <aside className='side-rail'>
+              <div className='side-rail-inner'>
+                {sideAds.map((ad) => (
+                  <a
+                    key={ad._id}
+                    href={ad.link || "#"}
+                    target='_blank'
+                    rel='noreferrer nofollow sponsored'
+                    className='side-rail-card'
+                  >
+                    {ad.image && ad.image !== "undefined" ? (
+                      <img src={ad.image} alt={ad.title || "Sponsored"} />
+                    ) : null}
+                    {ad.title && <p>{ad.title}</p>}
+                  </a>
+                ))}
+              </div>
+            </aside>
+          )}
           <div
             style={{
               background: "var(--surface)",
@@ -454,7 +474,7 @@ const PostList = () => {
 
                 {/* Side ads sit below the listings on every screen size. */}
                 {sideAds?.length > 0 && (
-                  <div style={{ marginTop: "28px" }}>
+                  <div className='side-ads-bottom' style={{ marginTop: "28px" }}>
                     <h2
                       style={{
                         color: "var(--text)",
