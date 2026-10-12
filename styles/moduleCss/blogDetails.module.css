@@ -100,32 +100,13 @@
 .desc p {
   color: var(--text);
 }
+/* One column on every screen: the side ads sit below the post, not beside it. */
 .blogContainer {
   display: grid;
-  grid-template-columns: 6fr 2fr;
-}
-.othersLinkImage {
-  margin: 2px auto;
-  border-radius: 6px;
-}
-.othersLinkContainer {
-  width: 270px;
-  margin: 10px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  padding: 5px;
-  border-radius: 8px;
-  transition: border-color 0.2s;
-}
-.othersLinkContainer:hover {
-  border-color: var(--accent);
+  grid-template-columns: 1fr;
 }
 
 @media only screen and (max-width: 768px) {
-  .blogContainer {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
   .mainContainer {
     width: 100%;
     grid-template-columns: 1fr;

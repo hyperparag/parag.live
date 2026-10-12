@@ -302,12 +302,18 @@ const UpdatePost = () => {
       );
       setSubmitting(false);
       if (response.data.status === "success") {
+        // An edit is re-checked against the posting rules and can send the
+        // ad back to review; say so rather than claiming it is live.
+        const heldForReview = response.data.data?.product?.isApproved === false;
         Swal.fire({
           position: "top-center",
-          icon: "success",
-          title: "Your post has been updated",
-          showConfirmButton: false,
-          timer: 1500,
+          icon: heldForReview ? "info" : "success",
+          title: heldForReview
+            ? "Updated, waiting for review"
+            : "Your post has been updated",
+          text: heldForReview ? response.data.message : undefined,
+          showConfirmButton: heldForReview,
+          timer: heldForReview ? undefined : 1500,
         }).then(() => {
           router.push("/dashboard/profile");
         });
@@ -315,6 +321,11 @@ const UpdatePost = () => {
     } catch (err) {
       console.error(err);
       setSubmitting(false);
+      Swal.fire({
+        icon: "error",
+        title: "Could not update your post",
+        text: err?.response?.data?.message || "Please try again.",
+      });
     }
   };
 

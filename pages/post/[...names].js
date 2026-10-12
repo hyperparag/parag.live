@@ -20,7 +20,6 @@ const Ahad = () => {
   const [page, setPage] = useState(1);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [gallery, setGallery] = useState([]);
   const [age, setAge] = useState("");
   const [reload, setReload] = useState(false);
 
@@ -30,7 +29,6 @@ const Ahad = () => {
         `  https://paraglive-backend.vercel.app/api/products/all?page=${current}&category=${router?.query?.names?.[2]}&state=${router?.query?.names?.[0]}&cat=${router?.query?.names?.[1]}`,
       );
       setPage(response.data.pages);
-      setGallery(response.data.data.products);
 
       setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
       setRegularPosts(
@@ -86,7 +84,7 @@ const Ahad = () => {
     );
   }
   if (layout == "gallery") {
-    content = <Gallery data1={gallery} />;
+    content = <Gallery data1={boostedPosts} data2={regularPosts} />;
   }
 
   const setAdult = (e) => {

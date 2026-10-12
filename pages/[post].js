@@ -24,7 +24,6 @@ const PostList = () => {
   const [page, setPage] = useState(1);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [gallery, setGallery] = useState([]);
   const [links, setLinks] = useState();
   const [age, setAge] = useState("");
   const [category, setCategory] = useState("Women-Men");
@@ -39,7 +38,6 @@ const PostList = () => {
 
       setLinks(response.data.links?.[0]);
       setPage(response.data.pages);
-      setGallery(response.data.data.products);
       setBoostedPosts(response.data.data.products?.filter((a) => a.boosted));
       setRegularPosts(
         response.data.data.products?.filter((a) => !a.boosted),
@@ -49,7 +47,6 @@ const PostList = () => {
       console.error(error);
       setLoading(false);
       setPage(0);
-      setGallery([]);
       setBoostedPosts([]);
       setRegularPosts([]);
     }
@@ -123,7 +120,13 @@ const PostList = () => {
       />
     );
   if (layout == "gallery")
-    content = <Gallery data1={gallery} category={category} />;
+    content = (
+      <Gallery
+        data1={boostedPosts}
+        data2={regularPosts}
+        category={category}
+      />
+    );
 
   const setAdult = (e) => {
     Cookies.set("age", e);
@@ -321,26 +324,6 @@ const PostList = () => {
             position: "relative",
           }}
         >
-          {age != undefined && sideAds?.length > 0 && (
-            <aside className='side-rail'>
-              <div className='side-rail-inner'>
-                {sideAds.map((ad) => (
-                  <a
-                    key={ad._id}
-                    href={ad.link || "#"}
-                    target='_blank'
-                    rel='noreferrer nofollow sponsored'
-                    className='side-rail-card'
-                  >
-                    {ad.image && ad.image !== "undefined" ? (
-                      <img src={ad.image} alt={ad.title || "Sponsored"} />
-                    ) : null}
-                    {ad.title && <p>{ad.title}</p>}
-                  </a>
-                ))}
-              </div>
-            </aside>
-          )}
           <div
             style={{
               background: "var(--surface)",
@@ -469,8 +452,9 @@ const PostList = () => {
 
                 {content}
 
+                {/* Side ads sit below the listings on every screen size. */}
                 {sideAds?.length > 0 && (
-                  <div className='side-ads-bottom' style={{ marginTop: "28px" }}>
+                  <div style={{ marginTop: "28px" }}>
                     <h2
                       style={{
                         color: "var(--text)",

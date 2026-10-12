@@ -6,7 +6,6 @@ const Header = dynamic(() => import("@/component/header/header"));
 import style from "../../styles/moduleCss/blogDetails.module.css";
 import axios from "axios";
 import { useRouter } from "next/router";
-import Image from "next/image";
 
 const BlogDetails = () => {
   const router = useRouter();
@@ -138,22 +137,63 @@ const BlogDetails = () => {
                 }}
               ></div>
             </div>
-            <div className=' p-3 m-4 sm:m-8 h-fit'>
-              {ads.map((a) => (
-                <div className={style.othersLinkContainer} key={a._id}>
-                  <a href={`${a.link}`} target='_blank' rel='noreferrer'>
-                    <Image
-                      className={style.othersLinkImage}
-                      src={`${a.image}`}
-                      width={1000}
-                      height={800}
-                      alt='image'
-                    />
-                    <p style={{ color: "var(--accent)" }}>{a.title}</p>
-                  </a>
+            {/* Side ads go below the post on every screen size, the same
+                Sponsored grid as the listing and ad pages. */}
+            {ads?.length > 0 && (
+              <div className='p-3 mx-4 mb-8 sm:mx-10'>
+                <h2
+                  style={{
+                    color: "var(--text)",
+                    fontSize: "1.1rem",
+                    fontWeight: 700,
+                    marginBottom: "12px",
+                  }}
+                >
+                  Sponsored
+                </h2>
+                <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+                  {ads.map((ad) => (
+                    <a
+                      key={ad._id}
+                      href={ad.link || "#"}
+                      target='_blank'
+                      rel='noreferrer nofollow sponsored'
+                      style={{
+                        display: "block",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        border: "1px solid var(--border)",
+                        background: "var(--surface)",
+                        textDecoration: "none",
+                      }}
+                    >
+                      {ad.image && ad.image !== "undefined" ? (
+                        <img
+                          src={ad.image}
+                          alt={ad.title || "Sponsored"}
+                          style={{
+                            width: "100%",
+                            height: "120px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : null}
+                      <div style={{ padding: "10px" }}>
+                        <p
+                          style={{
+                            color: "var(--text-secondary)",
+                            fontSize: "0.8rem",
+                            fontWeight: 500,
+                          }}
+                        >
+                          {ad.title}
+                        </p>
+                      </div>
+                    </a>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         </>
       )}

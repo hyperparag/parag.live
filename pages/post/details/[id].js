@@ -22,6 +22,17 @@ function stripLinks(html) {
   return html.replace(/<a\b[^>]*>(.*?)<\/a>/gi, "$1");
 }
 
+// The meta description used to be the first 318 characters of raw editor HTML,
+// so search results showed "<p><strong>..." to people.
+function toPlainText(html) {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 const Details = () => {
   const router = useRouter();
   const id = router?.query?.id;
@@ -127,8 +138,14 @@ const Details = () => {
         <meta name='title' content={`${postDetails?.name?.slice(0, 65)}`} />
         <meta
           name='description'
-          content={`${postDetails?.description?.slice(0, 318)}`}
+          content={toPlainText(postDetails?.description).slice(0, 160)}
         />
+        {/* Pending and deleted ads can still be opened by id. Keep them out of
+            search results so nothing held for review gets indexed. */}
+        {postDetails &&
+          (postDetails.isApproved === false || postDetails.isDelete) && (
+            <meta name='robots' content='noindex,nofollow' />
+          )}
         <link
           name='canonical'
           rel='canonical'

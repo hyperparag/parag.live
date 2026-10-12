@@ -494,11 +494,13 @@ import Swal from "sweetalert2";
 import { Radio, message } from "antd";
 import Link from "next/link";
 import User from "../user";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import Cookies from "js-cookie";
 import dynamic from "next/dynamic";
 import { DatePicker } from "antd";
 import { compressImage, formatBytes } from "../utils/compressImage";
 import { api, jsonAuthHeaders, authHeaders } from "../utils/api";
+import { POSTING_LIMITS, countWords } from "../utils/postingRules";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -551,6 +553,9 @@ const PostForm = () => {
   const [errors, setErrors] = useState({});
   const [compressing, setCompressing] = useState(false);
   const [scheduleLater, setScheduleLater] = useState(false);
+  const [agreedToRules, setAgreedToRules] = useState(false);
+
+  const descriptionWords = countWords(state.description);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -707,6 +712,8 @@ const PostForm = () => {
     if (!state.description || state.description === "<p><br></p>")
       e.description = "Description is required";
     if (previewUrls.length === 0) e.image = "At least one image is required";
+    if (!agreedToRules)
+      e.rules = "Please confirm you have read the posting rules";
     return e;
   };
 
@@ -804,7 +811,13 @@ const PostForm = () => {
       headers: jsonAuthHeaders(session),
       body: JSON.stringify(data),
     })
-      .then((e) => e.json())
+      .then(async (res) => {
+        const body = await res.json().catch(() => ({}));
+        // The auth middleware answers with an HTTP status and only
+        // { message: "Forbidden" }, never a body `code`, so take it from here.
+        if (res.status === 401 || res.status === 403) body.code = res.status;
+        return body;
+      })
       .then((t) => {
         setLoading(false);
 
@@ -813,6 +826,10 @@ const PostForm = () => {
             type: "error",
             content: "Your session has expired. Please sign in again.",
           });
+          // A stale token can come from either the NextAuth session or the
+          // legacy cookie, so clear both or the next attempt sends it again.
+          Cookies.remove("token");
+          signOut({ callbackUrl: "/login" });
           return;
         }
 
@@ -905,6 +922,50 @@ const PostForm = () => {
         >
           Charge: <strong>${local?.toFixed(2)}</strong>
         </span>
+      </div>
+
+      {/* The rules used to be written down nowhere, so ads went to review
+          with no way for the poster to know why. */}
+      <div
+        className='rounded-xl p-4 mb-5 text-sm'
+        style={{
+          background: "var(--surface-2)",
+          border: "1px solid var(--border)",
+          color: "var(--text-secondary)",
+        }}
+      >
+        <p className='font-semibold mb-2' style={{ color: "var(--text)" }}>
+          Before you post
+        </p>
+        <ul className='list-disc pl-5 flex flex-col gap-1'>
+          <li>
+            Description of at least {POSTING_LIMITS.minDescriptionWords} words,
+            in your own words.
+          </li>
+          <li>
+            Post each ad once. Use Repost to bump it, and pick several cities
+            in one ad instead of posting it again.
+          </li>
+          <li>
+            At most {POSTING_LIMITS.maxAdsPerDay} new ads a day and{" "}
+            {POSTING_LIMITS.maxLinks} links per ad. No link shorteners,
+            Telegram or WhatsApp links.
+          </li>
+          <li>Do not repeat the same keyword over and over.</li>
+          <li>Nothing involving minors, drugs, weapons or fraud.</li>
+        </ul>
+        <p className='mt-2'>
+          Ads that break a rule are not rejected: they wait as Pending until an
+          admin approves or deletes them.{" "}
+          <Link
+            href='/posting-rules'
+            target='_blank'
+            className='font-semibold'
+            style={{ color: "var(--accent)" }}
+          >
+            Read the full posting rules
+          </Link>
+        </p>
       </div>
 
       {/* Image upload */}
@@ -1162,11 +1223,31 @@ const PostForm = () => {
               modules={modules}
             />
           </div>
-          {errors.description && (
-            <p className='text-xs mt-1' style={{ color: "var(--error)" }}>
-              {errors.description}
+          <div className='flex justify-between mt-1'>
+            {errors.description ? (
+              <p className='text-xs' style={{ color: "var(--error)" }}>
+                {errors.description}
+              </p>
+            ) : descriptionWords > 0 &&
+              descriptionWords < POSTING_LIMITS.minDescriptionWords ? (
+              // A warning, not a block: short ads still submit, into review.
+              <p className='text-xs' style={{ color: "var(--warning)" }}>
+                Under {POSTING_LIMITS.minDescriptionWords} words, this ad will
+                wait for admin review.
+              </p>
+            ) : null}
+            <p
+              className='text-xs ml-auto'
+              style={{
+                color:
+                  descriptionWords < POSTING_LIMITS.minDescriptionWords
+                    ? "var(--text-muted)"
+                    : "var(--success)",
+              }}
+            >
+              {descriptionWords} / {POSTING_LIMITS.minDescriptionWords}+ words
             </p>
-          )}
+          </div>
         </div>
 
         <div
@@ -1241,6 +1322,39 @@ const PostForm = () => {
                 </p>
               )}
             </div>
+          )}
+        </div>
+
+        <div className='pt-4' style={{ borderTop: "1px solid var(--border)" }}>
+          <label
+            className='flex items-start gap-2 text-sm cursor-pointer'
+            style={{ color: "var(--text)" }}
+          >
+            <input
+              type='checkbox'
+              checked={agreedToRules}
+              onChange={(e) => {
+                setAgreedToRules(e.target.checked);
+                setErrors((prev) => ({ ...prev, rules: "" }));
+              }}
+              className='mt-1'
+            />
+            <span>
+              I have read the{" "}
+              <Link
+                href='/posting-rules'
+                target='_blank'
+                style={{ color: "var(--accent)" }}
+              >
+                posting rules
+              </Link>{" "}
+              and my ad follows them.
+            </span>
+          </label>
+          {errors.rules && (
+            <p className='text-xs mt-1' style={{ color: "var(--error)" }}>
+              {errors.rules}
+            </p>
           )}
         </div>
 

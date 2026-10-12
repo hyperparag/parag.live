@@ -62,7 +62,7 @@ const OnlyTextList = ({ data1, data2, category }) => {
     <div>
       {data1?.length > 0 && (
         <div style={{ marginBottom: "24px" }}>
-          <SectionHeader label='Premium Ads' filled />
+          <SectionHeader label='Premium List' filled />
           {data1.map((a, index) => (
             <div key={index}>
               {a.objects.map((b) => (
@@ -75,7 +75,7 @@ const OnlyTextList = ({ data1, data2, category }) => {
 
       {data2?.length > 0 && (
         <>
-          <SectionHeader label='Regular Ads' />
+          <SectionHeader label='Regular List' />
           {data2.map((a, index) => (
             <div key={index}>
               {a.objects.map((b) => (
