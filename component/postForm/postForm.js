@@ -520,6 +520,8 @@ const initialState = {
   cities: "",
   premiumDay: 0,
   age: "",
+  // Optional, free text: neighbourhood, area or landmark.
+  location: "",
   // Per-image alt text, parallel to imgOne..imgFour.
   altTexts: ["", "", "", ""],
   // null posts immediately; an ISO date schedules the ad for later.
@@ -1178,31 +1180,57 @@ const PostForm = () => {
           </div>
         </div>
 
-        <div>
-          <p
-            className='text-sm font-semibold mb-1'
-            style={{ color: "var(--text)" }}
-          >
-            <span style={{ color: "var(--error)" }}>*</span> Category
-          </p>
-          <select
-            name='subCategory'
-            onChange={handleInput}
-            value={state.subCategory}
-            className={`w-full sm:w-1/2 rounded-lg px-3 py-2 text-sm focus:outline-none themed-select ${errors.subCategory ? "" : ""}`}
-          >
-            <option value=''>-- Select Category --</option>
-            {categories?.map((e) => (
-              <option key={e?.name} value={e?.name}>
-                {e?.name}
-              </option>
-            ))}
-          </select>
-          {errors.subCategory && (
-            <p className='text-xs mt-0.5' style={{ color: "var(--error)" }}>
-              {errors.subCategory}
+        <div className='flex sm:flex-row flex-col gap-4'>
+          <div className='sm:w-1/2 w-full'>
+            <p
+              className='text-sm font-semibold mb-1'
+              style={{ color: "var(--text)" }}
+            >
+              <span style={{ color: "var(--error)" }}>*</span> Category
             </p>
-          )}
+            <select
+              name='subCategory'
+              onChange={handleInput}
+              value={state.subCategory}
+              className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-select ${errors.subCategory ? "" : ""}`}
+            >
+              <option value=''>-- Select Category --</option>
+              {categories?.map((e) => (
+                <option key={e?.name} value={e?.name}>
+                  {e?.name}
+                </option>
+              ))}
+            </select>
+            {errors.subCategory && (
+              <p className='text-xs mt-0.5' style={{ color: "var(--error)" }}>
+                {errors.subCategory}
+              </p>
+            )}
+          </div>
+          {/* Sits where the sub-category picker used to be. */}
+          <div className='sm:w-1/2 w-full'>
+            <p
+              className='text-sm font-semibold mb-1'
+              style={{ color: "var(--text)" }}
+            >
+              Location{" "}
+              <span
+                className='font-normal text-xs'
+                style={{ color: "var(--text-muted)" }}
+              >
+                (optional)
+              </span>
+            </p>
+            <input
+              name='location'
+              type='text'
+              maxLength={100}
+              onChange={handleInput}
+              value={state.location}
+              placeholder='e.g. Downtown, near the airport'
+              className='w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-input'
+            />
+          </div>
         </div>
 
         <div>
