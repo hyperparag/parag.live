@@ -1063,14 +1063,27 @@ const PostForm = () => {
                     className='w-10 h-10 rounded object-cover flex-shrink-0'
                     style={{ border: "1px solid var(--border)" }}
                   />
-                  <input
-                    type='text'
-                    maxLength={125}
-                    value={state.altTexts?.[index] ?? ""}
-                    onChange={(e) => handleAltTextChange(index, e.target.value)}
-                    placeholder={`Describe photo ${index + 1}`}
-                    className='w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-input'
-                  />
+                  <div className='w-full'>
+                    <input
+                      type='text'
+                      maxLength={125}
+                      value={state.altTexts?.[index] ?? ""}
+                      onChange={(e) => handleAltTextChange(index, e.target.value)}
+                      placeholder={`Describe photo ${index + 1}`}
+                      className='w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-input'
+                    />
+                    <p
+                      className='text-xs text-right mt-0.5'
+                      style={{
+                        color:
+                          (state.altTexts?.[index]?.length ?? 0) > 110
+                            ? "var(--error)"
+                            : "var(--text-muted)",
+                      }}
+                    >
+                      {state.altTexts?.[index]?.length ?? 0}/125
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
