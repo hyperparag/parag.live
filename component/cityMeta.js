@@ -6,7 +6,7 @@ export const findCityMeta = ({ city, state }) => {
         0,
         2,
       )}`,
-      description: `Explore the Backpage alternatives to Parag ${city} ${state}. For Escort alligator & Erotic Massage by our Cheap & Tryst escort services`,
+      description: `Explore the Backpage alternatives to Parag ${city} ${state}. For Escort alligator & Erotic Massage by our Cheap & Tryst escort services. Also find the love of your life from local personal ads for free dating or read erotica listings near you`,
       keywords: ``,
       city: "Auburn",
     },
