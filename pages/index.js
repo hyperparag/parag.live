@@ -18,7 +18,7 @@ export default function Home() {
         <title>Parag - Adult Live Classifieds Directory</title>
         <meta
           name='description'
-          content='Parag is a live adult classifieds local personal ads directory for free dating, cheap escorts, erotic massage & erotica listings.'
+          content='Parag is a live adult classifieds local personals directory for free dating, cheap escorts, erotic massage & erotica listings.'
         />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link
