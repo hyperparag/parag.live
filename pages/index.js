@@ -15,10 +15,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Parag is the best cheap escorts for Fun & Erotic Massage</title>
+        <title>Parag - Adult Live Classifieds Directory</title>
         <meta
           name='description'
-          content='The Best female escort at Parag. Best Cheap escorts alligator looking for Cheap & Tryst escort services. Find real female escort with Parag'
+          content='Parag is a live adult classifieds local personals directory for free dating, cheap escorts, erotic massage & erotica listings.'
         />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link
@@ -28,7 +28,7 @@ export default function Home() {
         />{" "}
         <meta
           name='title'
-          content='Parag is the best cheap escorts for Fun & Erotic Massage'
+          content='Parag - Adult Live Classifieds Directory'
         />
         <meta name='keywords' content='' />
         <link rel='icon' href='/favicon.ico' />
