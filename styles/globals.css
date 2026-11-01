@@ -592,6 +592,50 @@ a {
   border-color: var(--border) !important;
   color: var(--text-muted) !important;
 }
+/* Phones. The date + time popup is ~400px wide (calendar and the two time
+   columns side by side) and Ant right-aligns it to the narrow input, so it
+   hung off the left edge of the screen. Pin it to the viewport instead and let
+   the calendar take whatever width is left after the time columns. */
+@media only screen and (max-width: 480px) {
+  .ant-picker-dropdown {
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+  }
+  /* The panel is a flex item with the default min-width:auto, so it would not
+     shrink below its content and the time columns got clipped. */
+  .ant-picker-dropdown .ant-picker-panel,
+  .ant-picker-dropdown .ant-picker-datetime-panel {
+    min-width: 0;
+    width: 100%;
+  }
+  .ant-picker-dropdown .ant-picker-datetime-panel .ant-picker-date-panel {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+  .ant-picker-dropdown .ant-picker-datetime-panel .ant-picker-time-panel {
+    flex: none;
+  }
+  .ant-picker-dropdown .ant-picker-time-panel-column {
+    width: 48px;
+  }
+  /* Ant hard-codes the day grid at 252px (7 columns x a 36px header cell), which
+     sets the calendar's minimum width; let the columns share the space instead. */
+  .ant-picker-dropdown .ant-picker-date-panel .ant-picker-content {
+    width: 100% !important;
+  }
+  .ant-picker-dropdown .ant-picker-date-panel .ant-picker-content th {
+    width: auto !important;
+    /* The site-wide `th` rule (padding 10px 12px) leaks in here; with the
+       narrower columns it clipped the weekday labels. */
+    padding: 0;
+    text-align: center;
+  }
+  .ant-picker-dropdown .ant-picker-date-panel .ant-picker-body {
+    padding: 8px 6px;
+  }
+}
 .ant-radio-wrapper {
   color: var(--text) !important;
 }

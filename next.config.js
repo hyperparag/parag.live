@@ -18,6 +18,12 @@ const nextConfig = {
         source: "/robots.txt",
         destination: "/api/robots",
       },
+      // The page was first named "forth". Keep that URL working; without a
+      // match it falls through to the [post] city page and returns HTML.
+      {
+        source: "/sitemap-posts-forth.xml",
+        destination: "/sitemap-posts-fourth.xml",
+      },
     ];
   },
 };
