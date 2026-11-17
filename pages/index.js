@@ -15,10 +15,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Parag - Adult Live Classifieds Directory</title>
+        <title>Parag - Live Classifieds Directory</title>
         <meta
           name='description'
-          content='Parag is a live adult classifieds local personals directory for free dating, cheap escorts, erotic massage & erotica listings.'
+          content='Parag is a live classifieds directory featuring legal betting, an open community, casual dating, a B2B marketplace, and service listings.'
         />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link
@@ -28,7 +28,7 @@ export default function Home() {
         />{" "}
         <meta
           name='title'
-          content='Parag - Adult Live Classifieds Directory'
+          content='Parag - Live Classifieds Directory'
         />
         <meta name='keywords' content='' />
         <link rel='icon' href='/favicon.ico' />
