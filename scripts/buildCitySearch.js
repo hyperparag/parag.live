@@ -12,8 +12,14 @@
  *      Europe, Australia and New Zealand, Latin America) and the Asia and Africa
  *      branches of public/countries.json. About 900 areas, e.g. 10 for Illinois.
  *      Names are kept exactly as the site has them ("Western Illinois", "Chambana").
- *   2. A country that is not in that list gets its capital and up to
- *      MAX_NON_CURATED - 1 more cities of BIG_CITY_POP or more people.
+ *      A few countries have a fuller list in scripts/extraAreas.js (Bangladesh:
+ *      8 divisions, 64 districts; Australia and the UK: the big cities the
+ *      original list misses).
+ *   2. A country that list covers thinly (the original Asia and Africa lists are
+ *      one entry per country, "Bahrain") is topped up with its biggest cities:
+ *      at least MIN_LISTED, more if it has many 300k+ cities, at most MAX_LISTED.
+ *      The capital replaces a "whole country" entry. A country whose own list
+ *      already has MIN_LISTED or more (US, Canada, India, Bangladesh, ...) is not touched.
  *   Nothing else is listed. Any other city can still be opened with "Open any
  *   city", and the search box suggests the closest listed city for it.
  *
@@ -50,9 +56,13 @@ const PUBLIC = path.join(__dirname, "..", "public");
 const WORLD = path.join(PUBLIC, "world");
 const round2 = (n) => Math.round(Number(n) * 100) / 100;
 
-// Countries the site's own list does not cover: capital + a few very big cities.
-const BIG_CITY_POP = 1000000;
-const MAX_NON_CURATED = 5;
+// A country the site's own list covers thinly gets its biggest cities added until it
+// lists max(MIN_LISTED, its 300k+ cities), at most MAX_LISTED. Needs 10k+ people
+// (the capital always counts).
+const MIN_LISTED = 10;
+const MAX_LISTED = 20;
+const TOPUP_BIG_POP = 300000;
+const TOPUP_MIN_POP = 10000;
 // Matching an area to GeoNames by another spelling or a typo needs this many people.
 const LOOSE_MATCH_MIN_POP = 20000;
 // GeoNames feature codes that are not a city of their own: PPLX part of a city,
@@ -70,7 +80,8 @@ const COUNTRY_ALIASES = {
   "virgin islands": "VI",
 };
 // Areas whose name is not the name of a place.
-const AREA_ALIASES = { hk: "hong kong" };
+// Regions named like a hamlet: use the coordinates of the main city of the region.
+const AREA_ALIASES = { hk: "hong kong", wales: "cardiff", northland: "whangarei" };
 
 // ---- read the site's own list ----------------------------------------------
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
@@ -128,6 +139,22 @@ for (const root of flat.filter((n) => !n.parentId && (n.name === "Asia" || n.nam
     }
     for (const city of kidsOf.get(idOf(country._id)) || []) addArea(cc, countryName.get(cc), city.name);
   }
+}
+
+// Countries with a fuller list (scripts/extraAreas.js) replace the original one.
+const extra = require("./extraAreas");
+for (const [cc, groups] of Object.entries(extra.add || {})) {
+  for (const [group, names] of Object.entries(groups)) for (const name of names) addArea(cc, group, name);
+}
+for (const [cc, groups] of Object.entries(extra.replace || {})) {
+  const wanted = new Set(Object.values(groups).flat().map(norm));
+  for (const a of areas) {
+    if (a.cc === cc && !wanted.has(norm(a.name))) {
+      console.warn(`warning: original area "${a.name}" (${cc}) is missing from scripts/extraAreas.js`);
+    }
+  }
+  for (let i = areas.length - 1; i >= 0; i -= 1) if (areas[i].cc === cc) areas.splice(i, 1);
+  for (const [group, names] of Object.entries(groups)) for (const name of names) addArea(cc, group, name);
 }
 
 // ---- GeoNames ----------------------------------------------------------------
@@ -206,21 +233,27 @@ const stats = { areas: 0, exact: 0, altName: 0, fuzzy: 0, country: 0, noCoords: 
 function findRow({ cc, group, name }) {
   const c = byCountry.get(cc);
   if (!c) return null;
-  const key = norm(AREA_ALIASES[norm(name)] || name);
+  const key = norm(AREA_ALIASES[norm(name)] || name)
+    .replace(/^ft /, "fort ")
+    .replace(/^st /, "saint ")
+    .replace(/^mt /, "mount ");
   if (!key) return null;
   const ok = (r) => !stateScoped(cc) || inState(r, cc, group);
   // Another spelling or a typo is only trusted for a real city: a village that
   // happens to have a similar name ("Madeira" / "Maceira") would give wrong coordinates.
   const bigEnough = (r) => ok(r) && r.pop >= LOOSE_MATCH_MIN_POP;
   let hit = byPop((c.main.get(key) || []).filter(ok));
+  const viaAlt = byPop((c.alt.get(key) || []).filter(bigEnough));
+  // "Newcastle" is a hamlet by its own name but a big city by another spelling
+  // (Newcastle upon Tyne): take the city.
+  if (hit && hit.pop < LOOSE_MATCH_MIN_POP && viaAlt && viaAlt.pop > hit.pop) hit = null;
   if (hit) {
     stats.exact += 1;
     return hit;
   }
-  hit = byPop((c.alt.get(key) || []).filter(bigEnough));
-  if (hit) {
+  if (viaAlt) {
     stats.altName += 1;
-    return hit;
+    return viaAlt;
   }
   if (key.length >= 5) {
     const max = key.length >= 9 ? 2 : 1;
@@ -264,27 +297,40 @@ for (const a of areas) {
 }
 const curatedCountries = listed.size;
 
+// A country the site's list covers thinly (often only the country itself, like
+// "Bahrain") is topped up with its most populated cities: capital first, then by
+// population. A country already at its target is left exactly as it is.
 let nonCurated = 0;
+const topUp = []; // [cc, before, after] for SHOW_TOPUP=1
 for (const c of index) {
-  if (listed.has(c.c)) continue;
   const data = byCountry.get(c.c);
   if (!data) continue;
-  const big = data.rows
-    .filter((r) => !NOT_A_CITY.has(r.fc) && r.pop >= BIG_CITY_POP && r !== data.capital)
-    .sort((a, b) => b.pop - a.pop);
-  const picks = [data.capital, ...big].filter(Boolean).slice(0, MAX_NON_CURATED);
-  if (picks.length === 0) {
-    const biggest = byPop(data.rows.filter((r) => !NOT_A_CITY.has(r.fc)));
-    if (biggest) picks.push(biggest);
+  const real = data.rows.filter((r) => !NOT_A_CITY.has(r.fc));
+  const target = Math.min(MAX_LISTED, Math.max(MIN_LISTED, real.filter((r) => r.pop >= TOPUP_BIG_POP).length));
+  const before = (listed.get(c.c) || []).length;
+  if (before >= MIN_LISTED || before >= target) continue; // already a real list of its own
+  // "Bahrain" / "Vietnam" as a city is the whole country: the capital replaces it.
+  const isWholeCountry = (e) => e.row && e.row === data.capital && norm(e.name) === norm(c.n);
+  const entries = (listed.get(c.c) || []).filter((e) => !isWholeCountry(e));
+  // Skip a city the list already has, by its own name or by another one ("Bombay" = Mumbai).
+  const taken = new Set(entries.flatMap((e) => [norm(e.name), e.row && norm(e.row.name)]).filter(Boolean));
+  const original = new Set(entries.map((e) => e.row).filter(Boolean));
+  const candidates = [data.capital, ...real.slice().sort((a, b) => b.pop - a.pop).filter((r) => r.pop >= TOPUP_MIN_POP)];
+  for (const r of candidates) {
+    if (entries.length >= target) break;
+    // Plain letters: "Can Tho", not "Cần Thơ". GeoNames writes the Vietnamese đ as "GJ".
+    const name = r && (r.ascii || r.name).replace(/GJ/g, "D").replace(/gj/g, "d").replace(/`/g, "'");
+    const key = name && norm(name);
+    if (!key || taken.has(key) || taken.has(norm(r.name)) || original.has(r)) continue;
+    entries.push({ group: c.n, name, row: r });
+    taken.add(key);
   }
-  const seen = new Set();
-  listed.set(
-    c.c,
-    picks
-      .filter((r) => !seen.has(norm(r.name)) && seen.add(norm(r.name)))
-      .map((r) => ({ group: c.n, name: r.name, row: r })),
-  );
-  nonCurated += listed.get(c.c).length;
+  listed.set(c.c, entries);
+  nonCurated += entries.length - before;
+  topUp.push([c.c, before, entries.length]);
+}
+if (process.env.SHOW_TOPUP) {
+  for (const [cc, b, a] of topUp) console.log(`TOPUP ${cc} ${countryName.get(cc)}: ${b} -> ${a}`);
 }
 
 // ---- write -------------------------------------------------------------------
@@ -349,7 +395,7 @@ for (const [letter, list] of pShards) {
 console.log("site list: ", stats.areas, "areas in", curatedCountries, "countries");
 console.log("  found in GeoNames: exact", stats.exact, " other spelling", stats.altName, " close spelling", stats.fuzzy, " whole country", stats.country);
 console.log("  no coordinates (kept, but never suggested as 'closest'):", stats.noCoords);
-console.log("not in the site list:", nonCurated, "cities in", index.length - curatedCountries, "countries (capital + big cities)");
+console.log("topped up:", topUp.length, "countries, net", nonCurated, "cities added (biggest cities, capital first)");
 console.log("TOTAL listed:", total, " not searchable (no latin letters):", notSearchable);
 console.log("places for 'closest city':", places, " files s/:", sShards.size, " p/:", pShards.size);
 if (skipped.length) console.log("skipped (no country code):", skipped.join(", "));
