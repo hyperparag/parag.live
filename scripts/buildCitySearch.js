@@ -17,9 +17,13 @@
  *      original list misses).
  *   2. A country that list covers thinly (the original Asia and Africa lists are
  *      one entry per country, "Bahrain") is topped up with its biggest cities:
- *      at least MIN_LISTED, more if it has many 50k+ cities, at most MAX_LISTED.
- *      The capital replaces a "whole country" entry. A country whose own list
- *      is already at its target (US, Canada, Bangladesh, ...) is not touched.
+ *      every city of THIN_MIN_POP+ people. A country with a real list of its own
+ *      is topped up to its 50k+ cities, at most MAX_LISTED. The capital replaces
+ *      a "whole country" entry. US, Canada and Bangladesh are not touched.
+ *      A city is only added if it has its own English Wikipedia article
+ *      (scripts/data/cityWiki.json, made by scripts/fetchCityWiki.js), and it is
+ *      shown by that article's name ("Isa Town", not "Madinat 'Isa"). That keeps
+ *      out parts of a town, district offices and misnamed places.
  *   Nothing else is listed. Any other city can still be opened with "Open any
  *   city", and the search box suggests the closest listed city for it.
  *
@@ -97,6 +101,24 @@ const AREA_ALIASES = {
   balgariya: "sofia",
 };
 
+// GeoNames id -> [English Wikipedia title, number of Wikipedia languages].
+const wiki = new Map(Object.entries(require("./data/cityWiki.json")));
+// Plain letters, so the name can be typed and used in a URL: "Sao Paulo", "Sanliurfa".
+const SPECIAL = { ı: "i", İ: "I", ł: "l", Ł: "L", đ: "d", Đ: "D", ø: "o", Ø: "O", ß: "ss", æ: "ae", Æ: "AE", œ: "oe", Œ: "OE", þ: "th", Þ: "Th", ð: "d", ħ: "h", Ħ: "H" };
+const plain = (s) =>
+  s
+    .replace(/[ıİłŁđĐøØßæÆœŒþÞðħĦ]/g, (ch) => SPECIAL[ch])
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[‘’ʻʼ`]/g, "'");
+// "Hyderabad, Sindh" -> "Hyderabad", "Riffa (city)" -> "Riffa".
+const wikiTitle = (id) => {
+  const w = wiki.get(String(id));
+  return w ? plain(w[0].replace(/\s*\([^)]*\)$/, "").replace(/,.*$/, "").trim()) : null;
+};
+// An article about the district or province around a town, not the town itself.
+const AREA_ARTICLE = /\b(district|province|governorate|municipality|tehsil|upazila|county|region|local government area|subdistrict|prefecture|department|commune|oblast|raion|canton)$/i;
+
 // ---- read the site's own list ----------------------------------------------
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
 const index = readJson(path.join(WORLD, "index.json"));
@@ -173,11 +195,11 @@ for (const [cc, groups] of Object.entries(extra.replace || {})) {
 
 // ---- GeoNames ----------------------------------------------------------------
 const admin1 = new Map(); // "US.IL" -> [normalized name, normalized ascii name]
-const admin1Label = new Map(); // "AF.07" -> "Kabul" (the name shown for a state / province)
+const admin1Label = new Map(); // "SA.06" -> "Eastern Province" (the name shown for a state / province)
 for (const line of fs.readFileSync(admin1File, "utf8").split("\n").filter(Boolean)) {
-  const [code, name, ascii] = line.split("\t");
+  const [code, name, ascii, id] = line.split("\t");
   admin1.set(code, [norm(name), norm(ascii)]);
-  admin1Label.set(code, ascii || name);
+  admin1Label.set(code, wikiTitle(id && id.trim()) || ascii || name);
 }
 
 const rows = fs
@@ -319,7 +341,8 @@ const topUp = []; // [cc, before, after] for SHOW_TOPUP=1
 for (const c of index) {
   const data = byCountry.get(c.c);
   if (!data || NEVER_TOUCHED.has(c.c)) continue;
-  const real = data.rows.filter((r) => !NOT_A_CITY.has(r.fc));
+  // A real city with its own English Wikipedia article (see wikiTitle).
+  const real = data.rows.filter((r) => !NOT_A_CITY.has(r.fc) && wikiTitle(r.id) && !AREA_ARTICLE.test(wikiTitle(r.id)));
   const before = (listed.get(c.c) || []).length;
   const thin = before < THIN_BELOW;
   const minPop = thin ? THIN_MIN_POP : TOPUP_BIG_POP;
@@ -332,16 +355,18 @@ for (const c of index) {
   // Skip a city the list already has, by its own name or by another one ("Bombay" = Mumbai).
   const taken = new Set(entries.flatMap((e) => [norm(e.name), e.row && norm(e.row.name)]).filter(Boolean));
   const original = new Set(entries.map((e) => e.row).filter(Boolean));
-  const candidates = [data.capital, ...real.slice().sort((a, b) => b.pop - a.pop).filter((r) => r.pop >= minPop)];
+  const capital = real.includes(data.capital) ? data.capital : null;
+  const candidates = [capital, ...real.slice().sort((a, b) => b.pop - a.pop).filter((r) => r.pop >= minPop)];
   for (const r of candidates) {
     if (entries.length >= target) break;
-    // Plain letters: "Can Tho", not "Cần Thơ". GeoNames writes the Vietnamese đ as "GJ".
-    const name = r && (r.ascii || r.name).replace(/GJ/g, "D").replace(/gj/g, "d").replace(/`/g, "'");
+    const name = r && wikiTitle(r.id);
     const key = name && norm(name);
     if (!key || taken.has(key) || taken.has(norm(r.name)) || original.has(r)) continue;
     entries.push({ group: c.n, name, row: r });
     taken.add(key);
   }
+  // No city with an article (a tiny territory): keep what the site's list had.
+  if (!entries.length) continue;
   // A long list is split by state / province so it can be browsed.
   if (thin && entries.length >= GROUP_FROM) {
     for (const e of entries) e.group = (e.row && admin1Label.get(`${c.c}.${e.row.admin1}`)) || c.n;

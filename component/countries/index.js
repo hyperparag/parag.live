@@ -242,7 +242,7 @@ const Index = () => {
 
         <p style={{ marginTop: "16px", fontSize: "0.75rem", color: "var(--text-muted)" }}>
           City search uses data from <a href='https://www.geonames.org/' style={{ color: "var(--accent)" }}>GeoNames</a>,
-          licensed CC BY 4.0.
+          licensed CC BY 4.0, and city names from <a href='https://www.wikidata.org/' style={{ color: "var(--accent)" }}>Wikidata</a> (CC0).
         </p>
       </div>
     </div>
