@@ -1,141 +1,337 @@
 /**
- * Builds the data behind the city search box. One-off: run it again only when
- * the city list changes.
+ * Builds the city lists and the data behind the city search box. Run it again
+ * only when the lists should change.
  *
- *   node scripts/buildCitySearch.js <cities5000.txt> <cities1000.txt> <admin1CodesASCII.txt>
+ *   node scripts/buildCitySearch.js <cities1000.txt> <admin1CodesASCII.txt>
  *
- * The three input files are free downloads from https://download.geonames.org/export/dump/
- * (cities5000.zip, cities1000.zip, admin1CodesASCII.txt). GeoNames data is CC BY 4.0.
+ * The two input files are free downloads from https://download.geonames.org/export/dump/
+ * (cities1000.zip and admin1CodesASCII.txt). GeoNames data is CC BY 4.0.
  *
- * It reads the existing public/world/<CC>.json lists (the cities the site covers)
- * and writes, next to them:
+ * WHICH CITIES THE SITE LISTS
+ *   1. The site's own curated list: public/country.json (United States, Canada,
+ *      Europe, Australia and New Zealand, Latin America) and the Asia and Africa
+ *      branches of public/countries.json. About 900 areas, e.g. 10 for Illinois.
+ *      Names are kept exactly as the site has them ("Western Illinois", "Chambana").
+ *   2. A country that is not in that list gets its capital and up to
+ *      MAX_NON_CURATED - 1 more cities of BIG_CITY_POP or more people.
+ *   Nothing else is listed. Any other city can still be opened with "Open any
+ *   city", and the search box suggests the closest listed city for it.
  *
- *   public/world/geo/<CC>.json  covered cities of one country with coordinates,
- *                               [[name, state, lat, lon], ...]. Used to find the
- *                               nearest covered city.
- *   public/world/s/<x>.json     covered cities of the whole world whose name starts
- *                               with letter x, most populated first,
- *                               [[name, countryCode, state], ...]. Used by the search box.
- *   public/world/p/<x>.json     smaller places (1,000 to 5,000 people) that the site
- *                               does not list, [[name, countryCode, lat, lon], ...].
- *                               Only used to answer "which covered city is closest
- *                               to the place you typed?".
+ * GeoNames is only used to find the coordinates of a listed area (so "closest
+ * listed city" works) and to pick the capital / big cities of step 2.
+ *
+ * WHAT IT WRITES (public/world/)
+ *   <CC>.json        listed cities of one country, [[group, [city, ...]], ...]
+ *                    (group = state / province for the US and Canada, else the
+ *                    country name). Read by component/countries/index.js.
+ *   index.json       [{c, n, k}] country code, name, number of listed cities.
+ *                    The names are read from the existing file and kept.
+ *   geo/<CC>.json    listed cities that have coordinates, [[name, group, lat, lon], ...]
+ *   s/<x>.json       listed cities of the whole world whose name starts with letter x,
+ *                    most populated first, [[name, countryCode, group], ...]
+ *   p/<x>.json       every GeoNames place of 1,000+ people, [[name, cc, lat, lon], ...].
+ *                    Only used to answer "which listed city is closest to the place
+ *                    you typed?".
+ *
+ * Running it twice gives the same files: nothing is read from its own output
+ * except the country names in index.json.
  */
 const fs = require("fs");
 const path = require("path");
 const { norm, shardKey } = require("../component/utils/cityNormalize");
 
-const [c5000, c1000, admin1File] = process.argv.slice(2);
-if (!c5000 || !c1000 || !admin1File) {
-  console.error("usage: node scripts/buildCitySearch.js <cities5000.txt> <cities1000.txt> <admin1CodesASCII.txt>");
+const [c1000, admin1File] = process.argv.slice(2);
+if (!c1000 || !admin1File) {
+  console.error("usage: node scripts/buildCitySearch.js <cities1000.txt> <admin1CodesASCII.txt>");
   process.exit(1);
 }
 
-const WORLD = path.join(__dirname, "..", "public", "world");
+const PUBLIC = path.join(__dirname, "..", "public");
+const WORLD = path.join(PUBLIC, "world");
 const round2 = (n) => Math.round(Number(n) * 100) / 100;
 
-const rowsOf = (file) =>
-  fs
-    .readFileSync(file, "utf8")
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => {
-      const f = line.split("\t");
-      return {
-        id: f[0],
-        name: f[1],
-        lat: round2(f[4]),
-        lon: round2(f[5]),
-        cc: f[8],
-        admin1: f[10],
-        pop: Number(f[14]) || 0,
-      };
-    });
+// Countries the site's own list does not cover: capital + a few very big cities.
+const BIG_CITY_POP = 1000000;
+const MAX_NON_CURATED = 5;
+// Matching an area to GeoNames by another spelling or a typo needs this many people.
+const LOOSE_MATCH_MIN_POP = 20000;
+// GeoNames feature codes that are not a city of their own: PPLX part of a city,
+// PPLQ abandoned, PPLH historical, PPLW destroyed, PPLCH historical capital,
+// PPLR religious community, PPLF farm village, STLMT settlement.
+const NOT_A_CITY = new Set(["PPLX", "PPLQ", "PPLH", "PPLW", "PPLCH", "PPLR", "PPLF", "STLMT"]);
 
-// admin1 code ("US.IL") -> normalized state names (native and ASCII spelling).
-const admin1 = new Map();
+// Names in the site's list that differ from the name in index.json.
+const COUNTRY_ALIASES = {
+  korea: "KR",
+  macedonia: "MK",
+  "czech republic": "CZ",
+  macau: "MO",
+  netherlands: "NL",
+  "virgin islands": "VI",
+};
+// Areas whose name is not the name of a place.
+const AREA_ALIASES = { hk: "hong kong" };
+
+// ---- read the site's own list ----------------------------------------------
+const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
+const index = readJson(path.join(WORLD, "index.json"));
+const countryName = new Map(index.map((c) => [c.c, c.n]));
+const codeOf = new Map(index.map((c) => [norm(c.n), c.c]));
+for (const [k, v] of Object.entries(COUNTRY_ALIASES)) codeOf.set(k, v);
+
+const areas = []; // { cc, group, name }
+const skipped = [];
+const addArea = (cc, group, name) => areas.push({ cc, group, name });
+
+const countryJson = readJson(path.join(PUBLIC, "country.json"));
+for (const root of countryJson) {
+  for (const child of root.children || []) {
+    if (root.name === "United States" || root.name === "Canada") {
+      const cc = root.name === "Canada" ? "CA" : "US";
+      for (const city of child.children || []) addArea(cc, child.name, city.name);
+      continue;
+    }
+    if (child.name === "Caribbean") {
+      // Each entry is a whole country, not a city.
+      for (const place of child.children || []) {
+        const cc = codeOf.get(norm(place.name));
+        if (cc) addArea(cc, countryName.get(cc), place.name);
+        else skipped.push(`${child.name}/${place.name}`);
+      }
+      continue;
+    }
+    const cc = codeOf.get(norm(child.name));
+    if (!cc) {
+      skipped.push(`${root.name}/${child.name}`);
+      continue;
+    }
+    for (const city of child.children || []) addArea(cc, countryName.get(cc), city.name);
+  }
+}
+
+// Asia and Africa only exist in the flat countries.json (parentId links).
+const idOf = (x) => (x && x.$oid) || x;
+const flat = readJson(path.join(PUBLIC, "countries.json")).filter((n) => !n.isDelete);
+const kidsOf = new Map();
+for (const n of flat) {
+  const p = idOf(n.parentId);
+  if (!p) continue;
+  if (!kidsOf.has(p)) kidsOf.set(p, []);
+  kidsOf.get(p).push(n);
+}
+for (const root of flat.filter((n) => !n.parentId && (n.name === "Asia" || n.name === "Africa"))) {
+  for (const country of kidsOf.get(idOf(root._id)) || []) {
+    const cc = codeOf.get(norm(country.name));
+    if (!cc) {
+      skipped.push(`${root.name}/${country.name}`);
+      continue;
+    }
+    for (const city of kidsOf.get(idOf(country._id)) || []) addArea(cc, countryName.get(cc), city.name);
+  }
+}
+
+// ---- GeoNames ----------------------------------------------------------------
+const admin1 = new Map(); // "US.IL" -> [normalized name, normalized ascii name]
 for (const line of fs.readFileSync(admin1File, "utf8").split("\n").filter(Boolean)) {
   const [code, name, ascii] = line.split("\t");
   admin1.set(code, [norm(name), norm(ascii)]);
 }
 
-const covered = rowsOf(c5000);
-const coveredIds = new Set(covered.map((r) => r.id));
+const rows = fs
+  .readFileSync(c1000, "utf8")
+  .split("\n")
+  .filter(Boolean)
+  .map((line) => {
+    const f = line.split("\t");
+    return {
+      id: f[0],
+      name: f[1],
+      ascii: f[2],
+      alt: f[3],
+      lat: round2(f[4]),
+      lon: round2(f[5]),
+      fc: f[7],
+      cc: f[8],
+      admin1: f[10],
+      pop: Number(f[14]) || 0,
+    };
+  });
 
-// country -> normalized city name -> rows
-const lookup = new Map();
-for (const r of covered) {
-  if (!lookup.has(r.cc)) lookup.set(r.cc, new Map());
-  const byName = lookup.get(r.cc);
-  const k = norm(r.name);
-  if (!byName.has(k)) byName.set(k, []);
-  byName.get(k).push(r);
+// Per country: names a place is known by. "main" = its name and ASCII name,
+// "alt" = every other spelling GeoNames has for it.
+const byCountry = new Map();
+const countryOf = (cc) => {
+  if (!byCountry.has(cc)) byCountry.set(cc, { main: new Map(), alt: new Map(), rows: [], capital: null });
+  return byCountry.get(cc);
+};
+const push = (map, key, row) => {
+  if (!key) return;
+  if (!map.has(key)) map.set(key, []);
+  map.get(key).push(row);
+};
+for (const r of rows) {
+  const c = countryOf(r.cc);
+  c.rows.push(r);
+  push(c.main, norm(r.name), r);
+  push(c.main, norm(r.ascii), r);
+  for (const a of r.alt.split(",")) push(c.alt, norm(a), r);
+  if (r.fc === "PPLC" && (!c.capital || r.pop > c.capital.pop)) c.capital = r;
 }
 
-fs.mkdirSync(path.join(WORLD, "geo"), { recursive: true });
-const sShards = new Map(); // letter -> [{ e, pop }]
-const stats = { cities: 0, exact: 0, loose: 0, noCoords: 0, noKey: 0 };
+const inState = (row, cc, group) => (admin1.get(`${cc}.${row.admin1}`) || []).includes(norm(group));
+const byPop = (list) => list.slice().sort((a, b) => b.pop - a.pop)[0] || null;
 
-const countryFiles = fs
-  .readdirSync(WORLD)
-  .filter((f) => /^[A-Z]{2}\.json$/.test(f));
+// Edit distance, giving up as soon as it is certain to be more than `max`.
+function distance(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i += 1) {
+    const row = [i];
+    let rowMin = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const v = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      row[j] = v;
+      if (v < rowMin) rowMin = v;
+    }
+    if (rowMin > max) return max + 1;
+    prev = row;
+  }
+  return prev[b.length];
+}
 
-for (const file of countryFiles) {
-  const cc = file.slice(0, 2);
-  const states = JSON.parse(fs.readFileSync(path.join(WORLD, file), "utf8"));
-  const byName = lookup.get(cc) || new Map();
-  const used = new Set();
-  const geo = [];
+const stateScoped = (cc) => cc === "US" || cc === "CA";
+const stats = { areas: 0, exact: 0, altName: 0, fuzzy: 0, country: 0, noCoords: 0 };
 
-  for (const [state, cities] of states) {
-    const stateKey = norm(state);
-    for (const city of cities) {
-      stats.cities += 1;
-      const key = norm(city);
-      const candidates = (byName.get(key) || []).filter((r) => !used.has(r.id));
-      let row = candidates.find((r) => {
-        const names = admin1.get(`${cc}.${r.admin1}`) || [];
-        return names.includes(stateKey);
-      });
-      if (row) stats.exact += 1;
-      else if (candidates.length) {
-        row = candidates.sort((a, b) => b.pop - a.pop)[0];
-        stats.loose += 1;
-      }
-      if (row) {
-        used.add(row.id);
-        geo.push([city, state, row.lat, row.lon]);
-      } else {
-        stats.noCoords += 1;
-      }
-
-      if (!key) {
-        stats.noKey += 1; // name has no latin letters: cannot be searched
-        continue;
-      }
-      const letter = shardKey(key);
-      if (!sShards.has(letter)) sShards.set(letter, []);
-      sShards.get(letter).push({ e: [city, cc, state], pop: row ? row.pop : 0 });
+/** The GeoNames place behind one of the site's areas, or null. */
+function findRow({ cc, group, name }) {
+  const c = byCountry.get(cc);
+  if (!c) return null;
+  const key = norm(AREA_ALIASES[norm(name)] || name);
+  if (!key) return null;
+  const ok = (r) => !stateScoped(cc) || inState(r, cc, group);
+  // Another spelling or a typo is only trusted for a real city: a village that
+  // happens to have a similar name ("Madeira" / "Maceira") would give wrong coordinates.
+  const bigEnough = (r) => ok(r) && r.pop >= LOOSE_MATCH_MIN_POP;
+  let hit = byPop((c.main.get(key) || []).filter(ok));
+  if (hit) {
+    stats.exact += 1;
+    return hit;
+  }
+  hit = byPop((c.alt.get(key) || []).filter(bigEnough));
+  if (hit) {
+    stats.altName += 1;
+    return hit;
+  }
+  if (key.length >= 5) {
+    const max = key.length >= 9 ? 2 : 1;
+    let best = null;
+    for (const [k, list] of c.main) {
+      const d = distance(key, k, max);
+      if (d > max) continue;
+      const cand = byPop(list.filter(bigEnough));
+      if (!cand) continue;
+      if (!best || d < best.d || (d === best.d && cand.pop > best.row.pop)) best = { d, row: cand };
+    }
+    if (best) {
+      stats.fuzzy += 1;
+      return best.row;
     }
   }
-  fs.writeFileSync(path.join(WORLD, "geo", file), JSON.stringify(geo));
+  // "Vietnam", "Kuwait": the area is the whole country, use its capital.
+  if (key === norm(countryName.get(cc)) && c.capital) {
+    stats.country += 1;
+    return c.capital;
+  }
+  return null;
 }
 
-fs.mkdirSync(path.join(WORLD, "s"), { recursive: true });
+// ---- decide what is listed ---------------------------------------------------
+const listed = new Map(); // cc -> [{ group, name, row }]
+const seenArea = new Set();
+for (const a of areas) {
+  const dupe = `${a.cc}|${a.group}|${norm(a.name)}`;
+  if (seenArea.has(dupe)) continue;
+  seenArea.add(dupe);
+  stats.areas += 1;
+  const row = findRow(a);
+  if (!row) stats.noCoords += 1;
+  // SHOW_MATCHES=1 prints how every area was matched, to check by eye.
+  if (process.env.SHOW_MATCHES) {
+    console.log(`${a.cc} | ${a.group} | ${a.name} -> ${row ? `${row.name} (${row.cc}.${row.admin1}, ${row.pop})` : "NONE"}`);
+  }
+  if (!listed.has(a.cc)) listed.set(a.cc, []);
+  listed.get(a.cc).push({ group: a.group, name: a.name, row });
+}
+const curatedCountries = listed.size;
+
+let nonCurated = 0;
+for (const c of index) {
+  if (listed.has(c.c)) continue;
+  const data = byCountry.get(c.c);
+  if (!data) continue;
+  const big = data.rows
+    .filter((r) => !NOT_A_CITY.has(r.fc) && r.pop >= BIG_CITY_POP && r !== data.capital)
+    .sort((a, b) => b.pop - a.pop);
+  const picks = [data.capital, ...big].filter(Boolean).slice(0, MAX_NON_CURATED);
+  if (picks.length === 0) {
+    const biggest = byPop(data.rows.filter((r) => !NOT_A_CITY.has(r.fc)));
+    if (biggest) picks.push(biggest);
+  }
+  const seen = new Set();
+  listed.set(
+    c.c,
+    picks
+      .filter((r) => !seen.has(norm(r.name)) && seen.add(norm(r.name)))
+      .map((r) => ({ group: c.n, name: r.name, row: r })),
+  );
+  nonCurated += listed.get(c.c).length;
+}
+
+// ---- write -------------------------------------------------------------------
+for (const dir of ["geo", "s", "p"]) {
+  fs.rmSync(path.join(WORLD, dir), { recursive: true, force: true });
+  fs.mkdirSync(path.join(WORLD, dir), { recursive: true });
+}
+
+const sShards = new Map(); // letter -> [{ e, pop }]
+let total = 0;
+let notSearchable = 0;
+for (const c of index) {
+  const entries = listed.get(c.c) || [];
+  const groups = [];
+  const geo = [];
+  for (const e of entries) {
+    let g = groups.find((x) => x[0] === e.group);
+    if (!g) groups.push((g = [e.group, []]));
+    g[1].push(e.name);
+    if (e.row) geo.push([e.name, e.group, e.row.lat, e.row.lon]);
+    const key = norm(e.name);
+    if (!key) {
+      notSearchable += 1; // no latin letters: cannot be searched
+      continue;
+    }
+    const letter = shardKey(key);
+    if (!sShards.has(letter)) sShards.set(letter, []);
+    sShards.get(letter).push({ e: [e.name, c.c, e.group], pop: e.row ? e.row.pop : 0 });
+  }
+  c.k = entries.length;
+  total += entries.length;
+  fs.writeFileSync(path.join(WORLD, `${c.c}.json`), JSON.stringify(groups));
+  fs.writeFileSync(path.join(WORLD, "geo", `${c.c}.json`), JSON.stringify(geo));
+}
+fs.writeFileSync(path.join(WORLD, "index.json"), JSON.stringify(index));
+
 for (const [letter, list] of sShards) {
   list.sort((a, b) => b.pop - a.pop);
-  fs.writeFileSync(
-    path.join(WORLD, "s", `${letter}.json`),
-    JSON.stringify(list.map((x) => x.e)),
-  );
+  fs.writeFileSync(path.join(WORLD, "s", `${letter}.json`), JSON.stringify(list.map((x) => x.e)));
 }
 
-// Places the site does not list, only used to find "the closest covered city".
+// Every place of 1,000+ people. Not listed on the site: only used to find the
+// listed city closest to a name that is not listed (or is spelled differently).
 const pShards = new Map();
 const seen = new Set();
 let places = 0;
-for (const r of rowsOf(c1000)) {
-  if (coveredIds.has(r.id)) continue;
+for (const r of rows.slice().sort((a, b) => b.pop - a.pop)) {
   const key = norm(r.name);
   if (!key) continue;
   const dupe = `${r.cc}|${key}`;
@@ -143,22 +339,19 @@ for (const r of rowsOf(c1000)) {
   seen.add(dupe);
   const letter = shardKey(key);
   if (!pShards.has(letter)) pShards.set(letter, []);
-  pShards.get(letter).push({ e: [r.name, r.cc, r.lat, r.lon], pop: r.pop });
+  pShards.get(letter).push([r.name, r.cc, r.lat, r.lon]);
   places += 1;
 }
-fs.mkdirSync(path.join(WORLD, "p"), { recursive: true });
 for (const [letter, list] of pShards) {
-  list.sort((a, b) => b.pop - a.pop);
-  fs.writeFileSync(
-    path.join(WORLD, "p", `${letter}.json`),
-    JSON.stringify(list.map((x) => x.e)),
-  );
+  fs.writeFileSync(path.join(WORLD, "p", `${letter}.json`), JSON.stringify(list));
 }
 
-console.log("covered cities:", stats.cities);
-console.log("  coordinates, exact state match:", stats.exact);
-console.log("  coordinates, matched by name only:", stats.loose);
-console.log("  no coordinates found:", stats.noCoords);
-console.log("  not searchable (no latin letters):", stats.noKey);
-console.log("extra places for 'closest city':", places);
-console.log("search files s/:", sShards.size, " place files p/:", pShards.size);
+console.log("site list: ", stats.areas, "areas in", curatedCountries, "countries");
+console.log("  found in GeoNames: exact", stats.exact, " other spelling", stats.altName, " close spelling", stats.fuzzy, " whole country", stats.country);
+console.log("  no coordinates (kept, but never suggested as 'closest'):", stats.noCoords);
+console.log("not in the site list:", nonCurated, "cities in", index.length - curatedCountries, "countries (capital + big cities)");
+console.log("TOTAL listed:", total, " not searchable (no latin letters):", notSearchable);
+console.log("places for 'closest city':", places, " files s/:", sShards.size, " p/:", pShards.size);
+if (skipped.length) console.log("skipped (no country code):", skipped.join(", "));
+const empty = index.filter((c) => c.k === 0).map((c) => c.c);
+if (empty.length) console.log("countries with no listed city:", empty.join(", "));

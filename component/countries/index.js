@@ -8,7 +8,9 @@ import styles from "../../styles/moduleCss/home.module.css";
  *
  * The data is in /public/world: index.json lists every country, and each
  * country has its own file ([[state, [cities]], ...]) that is loaded only when
- * that country is opened. Source: GeoNames (cities with 5,000+ people).
+ * that country is opened. The lists are the site's own areas (public/country.json),
+ * plus a capital and a few big cities for countries that list does not cover; see
+ * scripts/buildCitySearch.js. Any other city is opened with "Open any city".
  */
 
 const SHOW_FIRST = 24; // cities shown per state before "show more"
@@ -239,8 +241,8 @@ const Index = () => {
         </form>
 
         <p style={{ marginTop: "16px", fontSize: "0.75rem", color: "var(--text-muted)" }}>
-          City list: <a href='https://www.geonames.org/' style={{ color: "var(--accent)" }}>GeoNames</a>,
-          licensed CC BY 4.0. Cities with 5,000 or more people.
+          City search uses data from <a href='https://www.geonames.org/' style={{ color: "var(--accent)" }}>GeoNames</a>,
+          licensed CC BY 4.0.
         </p>
       </div>
     </div>
