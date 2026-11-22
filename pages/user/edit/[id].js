@@ -15,6 +15,7 @@ import Head from "next/head";
 import Header from "@/component/header/header";
 import Footer from "@/component/footer/footer";
 import { jsonAuthHeaders } from "@/component/utils/api";
+import HomeCityCard from "@/component/profile/HomeCityCard";
 
 const initialState = {
   firstName: "",
@@ -46,7 +47,7 @@ const Edit = () => {
   const [imagLoading, setUpdateLoding] = useState(false);
   const [passLoaidng, setPassLoading] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { users } = User();
+  const { users, refreshUser } = User();
   const { data: session } = useSession();
   // The compressed avatar, kept separately from antd's list (which swaps it
   // back to the original file).
@@ -261,6 +262,9 @@ const Edit = () => {
       </Head>
       <Header />
       <div style={{ padding: "24px 0" }}>
+    <div style={{ maxWidth: "720px", margin: "0 auto", padding: "0 16px" }}>
+      <HomeCityCard users={users} onSaved={refreshUser} />
+    </div>
     <div className={style.container}>
       {loading ? (
         <button className='btn loading bg-transparent lowercase border-0 m-auto w-full'>

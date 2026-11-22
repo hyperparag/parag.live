@@ -487,7 +487,7 @@
 import React, { useEffect, useState } from "react";
 import style from "./postForm.module.css";
 import { FaTrash, FaUser } from "react-icons/fa";
-import categories from "../../public/category.json";
+import { CATEGORIES } from "../utils/categories";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
@@ -509,7 +509,7 @@ const initialState = {
   phone: "",
   email: "",
   description: "",
-  category: "Adult",
+  category: "",
   subCategory: "",
   imgOne: "",
   imgTwo: "",
@@ -671,27 +671,35 @@ const PostForm = () => {
     { label: "30 Days ($15)", value: 15 },
   ];
 
-  const MULTI_CITY_RATE = 0.05;
+  // Credits per city outside the poster's own (home) city.
+  const OTHER_CITY_RATE = 0.05;
 
-  /** How many cities this ad will cover, as the server will see them. */
-  const selectedCityCount = () => {
-    if (router.query.name?.[0] == "local-ads") return 1;
+  /** The cities this ad will cover, as the server will see them. */
+  const selectedCities = () => {
+    if (router.query.name?.[0] == "local-ads") {
+      return [router.query.name?.[1]].filter(Boolean);
+    }
     try {
       const cities = JSON.parse(localStorage?.getItem("cities"));
-      return Array.isArray(cities) ? cities.length : 0;
+      return Array.isArray(cities) ? cities : [];
     } catch (error) {
-      return 0;
+      return [];
     }
   };
 
+  const homeCity = String(users?.address?.city || "")
+    .trim()
+    .toLowerCase();
+
   /**
-   * Mirrors feeForAd() on the server: the boost price, plus a per-city charge
-   * only once an ad covers more than one city.
+   * Mirrors feeForAd() on the server: the boost price, plus a charge for every
+   * city that is not the poster's home city. The home city is free.
    */
   const quote = (boostPrice) => {
-    const cities = selectedCityCount();
-    const multiCity = cities > 1 ? cities * MULTI_CITY_RATE : 0;
-    return Math.round((Number(boostPrice || 0) + multiCity) * 100) / 100;
+    const others = selectedCities().filter(
+      (c) => String(c).trim().toLowerCase() !== homeCity,
+    ).length;
+    return Math.round((Number(boostPrice || 0) + others * OTHER_CITY_RATE) * 100) / 100;
   };
 
   const topForDays = ({ target: { value } }) => {
@@ -701,7 +709,7 @@ const PostForm = () => {
 
   useEffect(() => {
     setLocal(quote(value1));
-  }, [router.query.name, value1]);
+  }, [router.query.name, value1, users?.address?.city]);
 
   const validate = () => {
     const e = {};
@@ -755,6 +763,7 @@ const PostForm = () => {
     try {
       const uploadRes = await fetch(api("/api/files2/files"), {
         method: "POST",
+        headers: authHeaders(session),
         body: formData,
       });
       if (!uploadRes.ok) throw new Error("upload failed");
@@ -1208,9 +1217,9 @@ const PostForm = () => {
               className={`w-full rounded-lg px-3 py-2 text-sm focus:outline-none themed-select ${errors.subCategory ? "" : ""}`}
             >
               <option value=''>-- Select Category --</option>
-              {categories?.map((e) => (
-                <option key={e?.name} value={e?.name}>
-                  {e?.name}
+              {CATEGORIES.map((name) => (
+                <option key={name} value={name}>
+                  {name}
                 </option>
               ))}
             </select>

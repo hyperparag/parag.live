@@ -126,6 +126,22 @@ const PostingRules = () => {
               &ldquo;session expired&rdquo;, sign in again and resubmit.
             </li>
             <li style={item}>
+              <strong style={strong}>A verified ID.</strong> Send a photo of a
+              government ID (a national ID card or a driving licence) and a
+              selfie on the{" "}
+              <Link href='/verify' style={{ color: "var(--accent)" }}>
+                verification page
+              </Link>
+              . You can post once our team has approved it.
+            </li>
+            <li style={item}>
+              <strong style={strong}>A home city.</strong> Choose it in{" "}
+              <Link href='/user/edit/me' style={{ color: "var(--accent)" }}>
+                your profile
+              </Link>
+              . You can change it once every 30 days.
+            </li>
+            <li style={item}>
               <strong style={strong}>
                 1 to {L.maxPhotos} photos.
               </strong>{" "}
@@ -138,7 +154,8 @@ const PostingRules = () => {
             </li>
             <li style={item}>
               <strong style={strong}>A working email address</strong>, a{" "}
-              <strong style={strong}>category</strong> and a{" "}
+              <strong style={strong}>category</strong> (Community, Dating,
+              Marketplace or Services) and a{" "}
               <strong style={strong}>description</strong>.
             </li>
             <li style={item}>
@@ -146,8 +163,8 @@ const PostingRules = () => {
             </li>
             <li style={item}>
               <strong style={strong}>Enough credits for paid options.</strong>{" "}
-              Posting in one city is free. Posting in more than one city costs $
-              {L.multiCityRate.toFixed(2)} per city (10 cities = $
+              Posting in your home city is free. Every other city costs $
+              {L.multiCityRate.toFixed(2)} per city (10 other cities = $
               {(10 * L.multiCityRate).toFixed(2)}). A boost costs $7 for 7 days,
               $10 for 14 days or $15 for 30 days. Your balance and the total
               charge are shown at the top of the form.{" "}
@@ -203,7 +220,10 @@ const PostingRules = () => {
               Fraud: stolen cards, &ldquo;money flips&rdquo; and similar
               schemes.
             </li>
-            <li style={item}>Offers of unprotected services.</li>
+            <li style={item}>
+              Adult content, escort or sexual services, and nude or explicit
+              photos.
+            </li>
             <li style={item}>
               Photos or contact details of someone else, or photos you do not
               have the right to use.

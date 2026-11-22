@@ -60,6 +60,8 @@ const Footer = () => {
             { href: "/posting-rules", label: "Posting Rules" },
             { href: "/privacy-policy", label: "Privacy" },
             { href: "/terms", label: "Terms" },
+            { href: "/dmca", label: "DMCA" },
+            { href: "/referral", label: "Referral" },
           ].map((l) => (
             <Link
               key={l.href}
@@ -107,51 +109,6 @@ const Footer = () => {
           }}
         /> */}
 
-        {/* SEO links */}
-        {/* <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "16px",
-            marginBottom: "28px",
-          }}
-        >
-          {[
-            { href: "/skip-the-games", label: "Parag" },
-            { href: "/female-escort", label: "Female Escort" },
-            {
-              href: "/tryst-san-antonio-escorts",
-              label: "Tryst San Antonio Escorts",
-            },
-            { href: "/skipthe-games", label: "Parag Games" },
-            { href: "/skip-yhe-games", label: "Parag Live" },
-            { href: "#", label: "Parag Ads" },
-            { href: "/tescorts", label: "Tescorts" },
-            { href: "/skip-the-games-wv", label: "Parag WV" },
-            {
-              href: "/skip-the-games-hudson-valley",
-              label: "Parag Hudson Valley",
-            },
-            { href: "/skip-the-games-worcester", label: "Parag Worcester" },
-            { href: "/skip-the-games-cape-cod", label: "Parag Cape Cod" },
-          ].map((l) => (
-            <Link
-              key={l.href + l.label}
-              href={l.href}
-              style={{
-                color: "var(--text-muted)",
-                textDecoration: "none",
-                fontSize: "0.75rem",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) => (e.target.style.color = "var(--accent)")}
-              onMouseLeave={(e) => (e.target.style.color = "var(--text-muted)")}
-            >
-              {l.label}
-            </Link>
-          ))}
-        </div> */}
 
         <hr
           style={{

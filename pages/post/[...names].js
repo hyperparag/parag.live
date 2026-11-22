@@ -6,7 +6,6 @@ import List from "@/component/list/list";
 import OnlyTextList from "@/component/onlyTextList/OnlyTextList";
 import { Pagination } from "antd";
 import axios from "axios";
-import Cookies from "js-cookie";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -20,7 +19,6 @@ const Ahad = () => {
   const [page, setPage] = useState(1);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [age, setAge] = useState("");
   const [reload, setReload] = useState(false);
 
   async function getPosts() {
@@ -87,16 +85,6 @@ const Ahad = () => {
     content = <Gallery data1={boostedPosts} data2={regularPosts} />;
   }
 
-  const setAdult = (e) => {
-    Cookies.set("age", e);
-    setReload(!reload);
-  };
-
-  useEffect(() => {
-    const useOld = Cookies.get("age");
-    setAge(useOld);
-  }, [reload]);
-
   const meta = findMeta(router?.query?.names);
 
   return (
@@ -158,40 +146,7 @@ const Ahad = () => {
           className='sm:w-9/12 m-auto my-5 p-3 rounded'
           style={{ background: "var(--surface)", color: "var(--text)" }}
         >
-          {router?.query?.names?.[1] == "Adult" && age == undefined ? (
-            <div className=''>
-              <h1 className='text-3xl font-bold'>Disclaimer</h1>
-              <p className='text-xl'>
-                This section contains sexual containt.including pictorial nudity
-                adult language. It is to be accessed only by persons who are 21
-                years of age or older (and is not considered to be a minor in
-                his/her state of residence) and who live in a community or local
-                jurisdiction where nude pictures and explicit adult materials
-                are not prohibited by law. By accessing this website, you are
-                representing to us that you meet the above qualifications.
-              </p>
-              <div>
-                <button
-                  className='px-3 py-2 mt-5 btn-accent'
-                  onClick={() => setAdult("Adult")}
-                >
-                  I am over 18
-                </button>
-                <Link href={"/"}>
-                  <button
-                    className='ml-5 px-3 py-2 mt-5'
-                    style={{
-                      background: "var(--error)",
-                      color: "#fff",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    Exit
-                  </button>
-                </Link>
-              </div>
-            </div>
-          ) : (
+          {(
             <>
               <ul className='flex gap-2'>
                 <li style={{ color: "var(--text)" }}>

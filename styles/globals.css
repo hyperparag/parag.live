@@ -796,3 +796,18 @@ th {
   justify-content: center;
   padding: 80px 0;
 }
+
+
+/* Google Translate widget: hide its banner and keep the page from shifting. */
+.goog-te-banner-frame,
+.skiptranslate > iframe,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-text-highlight {
+  display: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+body {
+  top: 0 !important;
+}

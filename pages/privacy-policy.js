@@ -165,6 +165,55 @@ const PrivacyPolicy = () => {
             sends text messages to phones on mobiles, and it could also lead to
             some text or data costs that will be used.
           </p>
+
+          <h2 style={headingStyle}>Identity verification:</h2>
+          <hr
+            style={{
+              border: "none",
+              borderTop: "1px solid var(--border)",
+              marginBottom: "16px",
+            }}
+          />
+          <p style={sectionStyle}>
+            To post an ad you must verify your identity with a government photo
+            ID (a national ID card or a driving licence) and a selfie. We use
+            these only to confirm who you are and to keep the site safe. They are
+            stored securely, are seen only by our verification staff, and are
+            never shown on your ad or shared with other users. We keep them while
+            your account is open and delete them within a reasonable time after
+            your account is closed, unless the law requires us to keep them
+            longer.
+          </p>
+
+          <h2 style={headingStyle}>Users around the world:</h2>
+          <hr
+            style={{
+              border: "none",
+              borderTop: "1px solid var(--border)",
+              marginBottom: "16px",
+            }}
+          />
+          <p style={sectionStyle}>
+            Parag is available in many countries. Your information may be
+            processed in countries other than your own. You can ask us to see,
+            correct or delete the personal data we hold about you by emailing
+            support@parag.live. Ads you post are public, so do not put private
+            information in them.
+          </p>
+
+          <h2 style={headingStyle}>Old ads and storage:</h2>
+          <hr
+            style={{
+              border: "none",
+              borderTop: "1px solid var(--border)",
+              marginBottom: "16px",
+            }}
+          />
+          <p style={sectionStyle}>
+            To keep the site free, when our storage is nearly full we
+            automatically delete the oldest ads and their images. Deleted ads
+            cannot be recovered.
+          </p>
         </div>
       </div>
       <Footer />

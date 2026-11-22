@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
+import { formatAdLocation } from "@/component/utils/adLocation";
 
 const List = ({ data1, data2, category }) => {
   const router = useRouter();
@@ -58,9 +59,16 @@ const List = ({ data1, data2, category }) => {
         >
           {b.name?.slice(0, 100)}
         </span>
-        <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-          {b.age}
-        </span>
+        {formatAdLocation(b, 2) && (
+          <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+            {formatAdLocation(b, 2)}
+          </span>
+        )}
+        {b.age && (
+          <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>
+            {b.age}
+          </span>
+        )}
       </div>
     </Link>
   );

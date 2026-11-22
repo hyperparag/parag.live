@@ -1,3 +1,17 @@
+const REMOVED_PAGES = [
+  "/female-escort",
+  "/tescorts",
+  "/tryst-san-antonio-escorts",
+  "/skip-the-games",
+  "/skip-the-games-cape-cod",
+  "/skip-the-games-hudson-valley",
+  "/skip-the-games-worcester",
+  "/skip-the-games-wv",
+  "/skip-yhe-games",
+  "/skipthe-games",
+  "/old",
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
@@ -11,6 +25,24 @@ const nextConfig = {
       "adbacklist.s3.ap-southeast-1.amazonaws.com",
       "dk3vy6fruyw6l.cloudfront.net",
     ],
+  },
+  async redirects() {
+    return [
+      // parag.live is the main domain; www sends people there.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.parag.live" }],
+        destination: "https://parag.live/:path*",
+        permanent: true,
+      },
+      // The old escort-era landing pages are gone. Send visitors and search
+      // engines to the home page instead of a 404.
+      ...REMOVED_PAGES.map((source) => ({
+        source,
+        destination: "/",
+        permanent: true,
+      })),
+    ];
   },
   async rewrites() {
     return [

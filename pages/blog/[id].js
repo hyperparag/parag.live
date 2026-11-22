@@ -5,6 +5,7 @@ const Footer = dynamic(() => import("@/component/footer/footer"));
 const Header = dynamic(() => import("@/component/header/header"));
 import style from "../../styles/moduleCss/blogDetails.module.css";
 import axios from "axios";
+import LanguageSwitcher from "@/component/translate/LanguageSwitcher";
 import { useRouter } from "next/router";
 
 const BlogDetails = () => {
@@ -90,11 +91,6 @@ const BlogDetails = () => {
                 />
               )}
               <br />
-              {blog?.category == "Adult" ? (
-                <span className={style.category}> {blog?.category} </span>
-              ) : (
-                ""
-              )}
 
               {blog?.category == "Dating" ||
               blog?.category == "Community" ||
@@ -128,7 +124,9 @@ const BlogDetails = () => {
                 <br className='block sm:hidden ' />
                 <span className='text-sm font-normal'></span>
               </h1>
-              <br />
+              <div style={{ margin: "8px 0 12px" }}>
+                <LanguageSwitcher compact />
+              </div>
 
               <div
                 className={style.desc}

@@ -178,7 +178,8 @@ const Dashboards = () => {
     const code = users?.referralCode;
     if (!code) return;
     try {
-      await navigator.clipboard.writeText(code);
+      // The whole link, so the person receiving it is credited to this code.
+      await navigator.clipboard.writeText(`https://parag.live/?ref=${code}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
@@ -439,8 +440,14 @@ const Dashboards = () => {
                   className='btn-accent'
                   style={{ padding: "8px 16px", fontSize: "0.78rem" }}
                 >
-                  {copied ? "Copied" : "Copy"}
+                  {copied ? "Copied link" : "Copy link"}
                 </button>
+                <a
+                  href='/referral'
+                  style={{ color: "var(--accent)", fontSize: "0.8rem" }}
+                >
+                  How it works
+                </a>
                 <span
                   style={{
                     color: "var(--success)",

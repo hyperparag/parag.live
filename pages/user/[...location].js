@@ -8,6 +8,7 @@ import style from "../../styles/moduleCss/location.module.css";
 import { BsArrowRight } from "react-icons/bs";
 import Head from "next/head";
 import cities from "../../public/usa.json";
+import CitySearch from "@/component/search/CitySearch";
 
 const Location = () => {
   const router = useRouter();
@@ -86,6 +87,21 @@ const Location = () => {
 
   const isMultiple = router?.query?.location?.[0] == "multiple-city-ads";
 
+  // A city from the search box. It can be any city in the world, listed or not:
+  // ads are matched by city name.
+  const [added, setAdded] = useState("");
+  const addSearchedCity = (city) => {
+    const name = city.name;
+    if (isMultiple) {
+      if (!state.find((c) => c.name.toLowerCase() === name.toLowerCase())) {
+        setState([...state, { _id: `custom-${name}`, name, isChecked: true }]);
+      }
+      setAdded(name);
+    } else {
+      router.push(`/posts/${router?.query?.location?.[0]}/${encodeURIComponent(name)}`);
+    }
+  };
+
   return (
     <div className='page-bg min-h-screen'>
       <Head>
@@ -126,8 +142,21 @@ const Location = () => {
 
       {/* ── Main content ── */}
       <div className='mx-4 sm:mx-24 my-5'>
+        <div style={{ maxWidth: 520, marginBottom: 20 }}>
+          <CitySearch
+            allowCustom
+            customLabel={isMultiple ? "Add" : "Use"}
+            placeholder='Search any city in the world'
+            onSelect={addSearchedCity}
+          />
+          {isMultiple && added && (
+            <p className='text-sm mt-2' style={{ color: "var(--success)" }}>
+              Added {added}. Selected: {state.length}.
+            </p>
+          )}
+        </div>
         <p className='text-lg font-semibold mb-4' style={{color: "var(--text)"}}>
-          Choose locations
+          Or choose from US cities
         </p>
 
         {isMultiple ? (

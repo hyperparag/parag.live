@@ -13,7 +13,10 @@ import { BsTelephone } from "react-icons/bs";
 import { ImBlocked } from "react-icons/im";
 import { findPostMeta } from "@/component/postmeta";
 import Header from "@/component/header/header";
+import TopLinksBar from "@/component/header/TopLinksBar";
 import { api } from "@/component/utils/api";
+import { formatAdLocation } from "@/component/utils/adLocation";
+import LanguageSwitcher from "@/component/translate/LanguageSwitcher";
 
 const myLink = process.env.NEXT_PUBLIC_OFFERLINK;
 
@@ -157,107 +160,7 @@ const Details = () => {
 
       <Header />
 
-      {/* Top links bar */}
-      <div
-        style={{
-          background: "var(--surface)",
-          borderBottom: "1px solid var(--border)",
-          padding: "10px 24px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "32px",
-          flexWrap: "wrap",
-        }}
-      >
-        {links ? (
-          <>
-            <Link
-              target='_blank'
-              rel='noopener noreferrer'
-              href={`${links?.shemale}`}
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-                letterSpacing: "0.06em",
-              }}
-            >
-              Shemale Escorts
-            </Link>
-            <Link
-              target='_blank'
-              rel='noopener noreferrer'
-              href={`${links?.meet}`}
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-                letterSpacing: "0.06em",
-              }}
-            >
-              Meet & Fuck
-            </Link>
-            <Link
-              target='_blank'
-              rel='noopener noreferrer'
-              href={`${links?.live}`}
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-                letterSpacing: "0.06em",
-              }}
-            >
-              Live Escorts
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link
-              href='#'
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Shemale Escorts
-            </Link>
-            <Link
-              href='#'
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Meet &amp; Fuck
-            </Link>
-            <Link
-              href='#'
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Live Escorts
-            </Link>
-          </>
-        )}
-      </div>
+      <TopLinksBar links={links} />
 
       {/* Content */}
       <div
@@ -293,6 +196,23 @@ const Details = () => {
               >
                 {postDetails?.name}
               </h1>
+
+              <div style={{ marginBottom: "12px" }}>
+                <LanguageSwitcher compact />
+              </div>
+
+              {formatAdLocation(postDetails) && (
+                <p
+                  style={{
+                    color: "var(--text-secondary)",
+                    fontSize: "0.9rem",
+                    marginTop: "-8px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  Location: {formatAdLocation(postDetails)}
+                </p>
+              )}
 
               {/* Contact buttons */}
               <div
@@ -375,11 +295,11 @@ const Details = () => {
                     fontWeight: 500,
                   }}
                 >
-                  If ad poster asks for money, credit card info, cashapp, gift
+                  If the ad poster asks for money, credit card info, cashapp, gift
                   card or tell you to verify in another website, consider its a
                   SCAM !
                   <br />
-                  Don&apos;t pay anything before meet the Provider!
+                  Don&apos;t pay anything before you meet the seller in person!
                 </p>
               </div>
 
@@ -396,7 +316,7 @@ const Details = () => {
                   fontSize: "0.85rem",
                 }}
               >
-                When you call, tell me that you saw my ad on PARAG
+                When you get in touch, mention that you saw this ad on PARAG
               </div>
 
               <hr
@@ -532,15 +452,17 @@ const Details = () => {
             </>
           )}
 
-          {/* Responsive ad */}
+          {/* Responsive ad: only drawn when the admin has set one. */}
           <div style={{ textAlign: "center" }}>
-            <Link href={resonsive?.link ?? "/"}>
-              <img
-                className='sm:w-[600px] m-auto mt-10'
-                src={resonsive?.image}
-                style={{ borderRadius: "8px" }}
-              />
-            </Link>
+            {resonsive?.image && (
+              <Link href={resonsive?.link ?? "/"}>
+                <img
+                  className='sm:w-[600px] m-auto mt-10'
+                  src={resonsive?.image}
+                  style={{ borderRadius: "8px" }}
+                />
+              </Link>
+            )}
           </div>
 
           {/* Related ads */}

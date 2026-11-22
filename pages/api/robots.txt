@@ -3,9 +3,9 @@ Disallow:
 User-agent: *
 Disallow: /search?q=
 Allow: /
-Sitemap: http://www.adbacklist.com/sitemap.xml
-Sitemap: http://www.adbacklist.com/sitemap-pages.xml
-Sitemap: http://www.adbacklist.com/sitemap-posts.xml
-Sitemap: http://www.adbacklist.com/sitemap-posts-second.xml
-Sitemap: http://www.adbacklist.com/sitemap-posts-third.xml
-Sitemap: http://www.adbacklist.com/sitemap-posts-forth.xml
+Sitemap: https://parag.live/sitemap.xml
+Sitemap: https://parag.live/sitemap-posts.xml
+Sitemap: https://parag.live/sitemap-posts-second.xml
+Sitemap: https://parag.live/sitemap-posts-third.xml
+Sitemap: https://parag.live/sitemap-posts-fourth.xml
+Sitemap: https://parag.live/sitemap-blogs.xml

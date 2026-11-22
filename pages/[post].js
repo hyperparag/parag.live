@@ -6,13 +6,14 @@ import List from "@/component/list/list";
 import OnlyTextList from "@/component/onlyTextList/OnlyTextList";
 import { Pagination } from "antd";
 import axios from "axios";
-import Cookies from "js-cookie";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
 import { api } from "@/component/utils/api";
+import { CATEGORIES, DEFAULT_CATEGORY } from "@/component/utils/categories";
+import TopLinksBar from "@/component/header/TopLinksBar";
 
 const myLink = process.env.NEXT_PUBLIC_OFFERLINK;
 
@@ -25,8 +26,7 @@ const PostList = () => {
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
   const [links, setLinks] = useState();
-  const [age, setAge] = useState("");
-  const [category, setCategory] = useState("Women-Men");
+  const [category, setCategory] = useState(DEFAULT_CATEGORY);
   const [reload, setReload] = useState(false);
   const [sideAds, setSideAds] = useState([]);
 
@@ -128,14 +128,6 @@ const PostList = () => {
       />
     );
 
-  const setAdult = (e) => {
-    Cookies.set("age", e);
-    setReload(!reload);
-  };
-  useEffect(() => {
-    const useOld = Cookies.get("age");
-    setAge(useOld);
-  }, [reload]);
 
   const meta = findCityMeta({
     city: router?.query?.post,
@@ -143,12 +135,7 @@ const PostList = () => {
   });
   const catChange = (e) => setCategory(e);
 
-  const categories = [
-    "Women-Men",
-    "Men-Men",
-    "Men-Women",
-    "Women-Women",
-  ];
+  const categories = CATEGORIES;
 
   return (
     <div className='page-bg'>
@@ -169,107 +156,7 @@ const PostList = () => {
 
       <Header />
 
-      {/* Top links bar */}
-      <div
-        style={{
-          background: "var(--surface)",
-          borderBottom: "1px solid var(--border)",
-          padding: "10px 24px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "32px",
-          flexWrap: "wrap",
-        }}
-      >
-        {links ? (
-          <>
-            <Link
-              target='_blank'
-              rel='noopener noreferrer'
-              href={`${links?.shemale}`}
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Shemale Escorts
-            </Link>
-            <Link
-              target='_blank'
-              rel='noopener noreferrer'
-              href={`${links?.meet}`}
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Meet & Fuck
-            </Link>
-            <Link
-              target='_blank'
-              rel='noopener noreferrer'
-              href={`${links?.live}`}
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Live Escorts
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link
-              href='#'
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Shemale Escorts
-            </Link>
-            <Link
-              href='#'
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Meet &amp; Fuck
-            </Link>
-            <Link
-              href='#'
-              style={{
-                color: "var(--accent)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                textTransform: "uppercase",
-                textDecoration: "none",
-              }}
-            >
-              Live Escorts
-            </Link>
-          </>
-        )}
-      </div>
+      <TopLinksBar links={links} />
 
       {/* Layout toggle */}
       <div
@@ -333,47 +220,7 @@ const PostList = () => {
               boxShadow: "var(--shadow)",
             }}
           >
-            {age == undefined ? (
-              <div style={{ padding: "24px" }}>
-                <h1
-                  style={{
-                    fontSize: "1.8rem",
-                    fontWeight: 800,
-                    color: "var(--accent)",
-                    marginBottom: "16px",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  Age Disclaimer
-                </h1>
-                <p
-                  style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "0.9rem",
-                    lineHeight: 1.7,
-                    marginBottom: "24px",
-                  }}
-                >
-                  This section contains sexual content, including pictorial
-                  nudity and adult language. It is to be accessed only by
-                  persons who are 21 years of age or older and who live in a
-                  community where explicit adult materials are not prohibited by
-                  law. By proceeding, you confirm you meet the above
-                  qualifications.
-                </p>
-                <div style={{ display: "flex", gap: "10px" }}>
-                  <button
-                    className='btn-accent'
-                    onClick={() => setAdult("Adult")}
-                  >
-                    I am over 18
-                  </button>
-                  <Link href='/'>
-                    <button className='btn-ghost'>Exit</button>
-                  </Link>
-                </div>
-              </div>
-            ) : (
+            {(
               <>
                 {/* Top bar: breadcrumb + category select */}
                 <div
@@ -418,7 +265,7 @@ const PostList = () => {
                     </Link>
                     <span style={{ color: "var(--text-muted)" }}>&rsaquo;</span>
                     <span style={{ color: "var(--text)", fontWeight: 600 }}>
-                      {category ?? "Adult"}
+                      {category}
                     </span>
                     {page > 0 && (
                       <>

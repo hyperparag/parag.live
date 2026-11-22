@@ -174,6 +174,23 @@ const Terms = () => {
             and relevant articles. Your use of the website is governed by these
             Conditions of Use and the Privacy Policy.
           </p>
+
+          <p style={{ ...s, fontWeight: 700, color: "var(--text)" }}>
+            Posting rules, verification and credits:
+          </p>
+          {[
+            "You must verify your identity with a valid government photo ID (national ID card or driving licence) before you can post. Using someone else's ID, or a false or altered ID, is not allowed and will lead to a permanent ban.",
+            "Posting in your home city is free. Posting in any other city costs credits. You choose your home city in your profile and can change it once every 30 days.",
+            "Ads may only be in the categories Community, Dating, Marketplace and Services. Adult content, escort or sexual services, and anything illegal in your country or in the city where you post are not allowed.",
+            "We use automatic filters and human review. We may remove any ad, or close any account, at any time if it breaks these rules or the law.",
+            "To keep the site free, when our storage is nearly full we automatically delete the oldest ads and their images. Ads and images can be removed without notice.",
+            "Credits and referral rewards have no cash value, cannot be sold or transferred, and may be changed or withdrawn at any time. Abuse of the referral program, such as fake accounts or self-referrals, ends in a ban and loss of rewards.",
+            "Copyright complaints are handled under our DMCA page (/dmca).",
+          ].map((item, i) => (
+            <p key={`extra-${i}`} style={s}>
+              {item}
+            </p>
+          ))}
         </div>
       </div>
       <Footer />

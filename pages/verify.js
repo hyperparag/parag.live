@@ -11,6 +11,7 @@ import { message } from "antd";
 import { FaTrash, FaUser } from "react-icons/fa";
 
 import { compressImage, formatBytes } from "@/component/utils/compressImage";
+import { authHeaders } from "@/component/utils/api";
 
 const BACKEND = "  https://paraglive-backend.vercel.app";
 const MAX_IMAGES = 2;
@@ -31,6 +32,7 @@ const Verify = () => {
     try {
       const response = await axios.get(
         `${BACKEND}/api/verification/user/${session?.user?.id}`,
+        { headers: authHeaders(session) },
       );
       setVerification(response?.data?.data?.verification ?? null);
     } catch (error) {
@@ -127,8 +129,9 @@ const Verify = () => {
       const formData = new FormData();
       selectedFiles.forEach((file) => formData.append("images", file));
 
-      const uploaded = await fetch(`${BACKEND}/api/files2/files`, {
+      const uploaded = await fetch(`${BACKEND}/api/files2/private`, {
         method: "POST",
+        headers: authHeaders(session),
         body: formData,
       }).then((res) => res.json());
 
@@ -141,11 +144,14 @@ const Verify = () => {
         ? []
         : (uploaded.files || []).map((f) => f.fileId).filter(Boolean);
 
-      await axios.post(`${BACKEND}/api/verification`, {
-        userId: session?.user?.id,
-        images: uploadedUrls,
-        imageFileIds: uploadedFileIds,
-      });
+      await axios.post(
+        `${BACKEND}/api/verification`,
+        {
+          images: uploadedUrls,
+          imageFileIds: uploadedFileIds,
+        },
+        { headers: authHeaders(session) },
+      );
 
       Swal.fire({
         icon: "success",

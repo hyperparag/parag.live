@@ -33,27 +33,18 @@ const Login = () => {
   const login = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const data = { ...state, isLoading: true };
-    await axios
-      .post("  https://paraglive-backend.vercel.app/api/users/login", data)
-      .then((response) => {
-        if (response.data.message == "success") {
-          Cookies.set("token", response.data.token);
-          setState({ ...state, emailError: "" });
-          if (router?.asPath == "/login") router.push("/");
-          else
-            setTimeout(() => {
-              router.reload(router?.asPath);
-            }, 500);
-          setIsLoading(false);
-        } else {
-          setState({ ...state, emailError: "Something went wrong" });
-        }
-      })
-      .catch((error) => {
-        setIsLoading(false);
-        setState({ ...state, emailError: error?.response?.data?.message });
-      });
+    setState({ ...state, emailError: "" });
+    const result = await signIn("credentials", {
+      email: state.email.trim(),
+      password: state.password,
+      redirect: false,
+    });
+    setIsLoading(false);
+    if (result?.ok) {
+      router.push(router?.query?.callbackUrl || "/");
+    } else {
+      setState({ ...state, emailError: "Wrong email or password" });
+    }
   };
 
   return (
@@ -140,6 +131,66 @@ const Login = () => {
               <FcGoogle style={{ width: "22px", height: "22px" }} />
               Sign in with Google
             </button>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                margin: "20px 0",
+                color: "var(--text-muted)",
+                fontSize: "0.75rem",
+              }}
+            >
+              <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+              or use your email
+              <div style={{ flex: 1, height: 1, background: "var(--border)" }} />
+            </div>
+            <form onSubmit={login} style={{ display: "grid", gap: "10px" }}>
+              <input
+                type='email'
+                required
+                placeholder='Email'
+                autoComplete='email'
+                className='themed-input'
+                value={state.email}
+                onChange={(e) =>
+                  dispatch({ type: "email", payload: e.target.value })
+                }
+              />
+              <input
+                type='password'
+                required
+                placeholder='Password'
+                autoComplete='current-password'
+                className='themed-input'
+                value={state.password}
+                onChange={(e) =>
+                  dispatch({ type: "password", payload: e.target.value })
+                }
+              />
+              <button className='btn-accent' type='submit' disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign in"}
+              </button>
+            </form>
+            <p style={{ textAlign: "center", fontSize: "0.85rem", marginTop: "10px" }}>
+              <Link href='/forgot-password' style={{ color: "var(--accent)" }}>
+                Forgot your password?
+              </Link>
+            </p>
+            <p
+              style={{
+                textAlign: "center",
+                fontSize: "0.85rem",
+                color: "var(--text-secondary)",
+                marginTop: "14px",
+              }}
+            >
+              No account?{" "}
+              <Link href='/signup' style={{ color: "var(--accent)" }}>
+                Sign up with email
+              </Link>
+            </p>
 
             {state.emailError && (
               <p

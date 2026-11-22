@@ -12,7 +12,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import { DatePicker } from "antd";
 import { compressImage, formatBytes } from "@/component/utils/compressImage";
-import { api, jsonAuthHeaders } from "@/component/utils/api";
+import { api, jsonAuthHeaders, authHeaders } from "@/component/utils/api";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 const Header = dynamic(() => import("@/component/header/header"));
@@ -262,6 +262,7 @@ const UpdatePost = () => {
         try {
           const res = await fetch(api("/api/files2/files"), {
             method: "POST",
+            headers: authHeaders(session),
             body: formData,
           });
           if (!res.ok) throw new Error("upload failed");
