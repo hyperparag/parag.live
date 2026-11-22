@@ -28,13 +28,9 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // parag.live is the main domain; www sends people there.
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.parag.live" }],
-        destination: "https://parag.live/:path*",
-        permanent: true,
-      },
+      // No www <-> parag.live redirect here. That is set in Vercel (Settings ->
+      // Domains); a second one in code made an endless redirect loop and took
+      // the whole site down on 2026-11-22.
       // The old escort-era landing pages are gone. Send visitors and search
       // engines to the home page instead of a 404.
       ...REMOVED_PAGES.map((source) => ({
