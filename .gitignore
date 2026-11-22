@@ -4,7 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-.env
 # testing
 /coverage
 
@@ -25,7 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
+# local env files (never commit secrets)
+.env
+.env.*
 .env*.local
 
 # vercel
@@ -33,3 +34,5 @@ yarn-error.log*
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+.gitignore
+config.bat

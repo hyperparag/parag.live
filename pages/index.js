@@ -20,6 +20,11 @@ export default function Home() {
           name='description'
           content='Parag is a free local classifieds site for community, dating, marketplace and services, in cities around the world.'
         />
+        <title> Parag - Live Classifieds Directory </title>
+        <meta
+          name='description'
+          content='Parag is a live classifieds directory featuring legal betting, an open community, casual dating, a B2B marketplace, and service listings.'
+        />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link
           name='canonical'
@@ -29,6 +34,7 @@ export default function Home() {
         <meta
           name='title'
           content='Parag - Free Local Classifieds'
+          content='Parag - Live Classifieds Directory'
         />
         <meta name='keywords' content='' />
         <link rel='icon' href='/favicon.ico' />
