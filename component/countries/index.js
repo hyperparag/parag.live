@@ -93,7 +93,7 @@ const Index = () => {
   useEffect(() => {
     fetch("/world/index.json")
       .then((r) => r.json())
-      .then(setCountries)
+      .then((list) => setCountries(list.filter((c) => c.k > 0))) // no empty countries (Tokelau)
       .catch(() => setError("Could not load the country list."));
   }, []);
 

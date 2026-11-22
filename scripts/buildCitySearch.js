@@ -17,9 +17,9 @@
  *      original list misses).
  *   2. A country that list covers thinly (the original Asia and Africa lists are
  *      one entry per country, "Bahrain") is topped up with its biggest cities:
- *      at least MIN_LISTED, more if it has many 300k+ cities, at most MAX_LISTED.
+ *      at least MIN_LISTED, more if it has many 50k+ cities, at most MAX_LISTED.
  *      The capital replaces a "whole country" entry. A country whose own list
- *      already has MIN_LISTED or more (US, Canada, India, Bangladesh, ...) is not touched.
+ *      is already at its target (US, Canada, Bangladesh, ...) is not touched.
  *   Nothing else is listed. Any other city can still be opened with "Open any
  *   city", and the search box suggests the closest listed city for it.
  *
@@ -56,13 +56,18 @@ const PUBLIC = path.join(__dirname, "..", "public");
 const WORLD = path.join(PUBLIC, "world");
 const round2 = (n) => Math.round(Number(n) * 100) / 100;
 
-// A country the site's own list covers thinly gets its biggest cities added until it
-// lists max(MIN_LISTED, its 300k+ cities), at most MAX_LISTED. Needs 10k+ people
-// (the capital always counts).
+// Countries the site's own list covers thinly (fewer than THIN_BELOW areas, e.g. one entry
+// "Bahrain" for the whole country) list every city of THIN_MIN_POP or more people, grouped
+// by state / province. Countries with a real list of their own are only topped up to their
+// 50k+ cities, at most MAX_LISTED; US, Canada and Bangladesh are never touched.
+// To list more or fewer cities for the thin countries, change THIN_MIN_POP.
+const THIN_BELOW = 10;
+const THIN_MIN_POP = 10000;
 const MIN_LISTED = 10;
-const MAX_LISTED = 20;
-const TOPUP_BIG_POP = 300000;
-const TOPUP_MIN_POP = 10000;
+const MAX_LISTED = 50;
+const TOPUP_BIG_POP = 50000;
+const GROUP_FROM = 30; // a list this long is split by state / province
+const NEVER_TOUCHED = new Set(["US", "CA", "BD"]);
 // Matching an area to GeoNames by another spelling or a typo needs this many people.
 const LOOSE_MATCH_MIN_POP = 20000;
 // GeoNames feature codes that are not a city of their own: PPLX part of a city,
@@ -81,7 +86,16 @@ const COUNTRY_ALIASES = {
 };
 // Areas whose name is not the name of a place.
 // Regions named like a hamlet: use the coordinates of the main city of the region.
-const AREA_ALIASES = { hk: "hong kong", wales: "cardiff", northland: "whangarei" };
+const AREA_ALIASES = {
+  hk: "hong kong",
+  wales: "cardiff",
+  northland: "whangarei",
+  // Typos and local spellings in the original list.
+  banglore: "bengaluru",
+  hydrabad: "hyderabad",
+  montt: "puerto montt",
+  balgariya: "sofia",
+};
 
 // ---- read the site's own list ----------------------------------------------
 const readJson = (file) => JSON.parse(fs.readFileSync(file, "utf8"));
@@ -159,9 +173,11 @@ for (const [cc, groups] of Object.entries(extra.replace || {})) {
 
 // ---- GeoNames ----------------------------------------------------------------
 const admin1 = new Map(); // "US.IL" -> [normalized name, normalized ascii name]
+const admin1Label = new Map(); // "AF.07" -> "Kabul" (the name shown for a state / province)
 for (const line of fs.readFileSync(admin1File, "utf8").split("\n").filter(Boolean)) {
   const [code, name, ascii] = line.split("\t");
   admin1.set(code, [norm(name), norm(ascii)]);
+  admin1Label.set(code, ascii || name);
 }
 
 const rows = fs
@@ -297,25 +313,26 @@ for (const a of areas) {
 }
 const curatedCountries = listed.size;
 
-// A country the site's list covers thinly (often only the country itself, like
-// "Bahrain") is topped up with its most populated cities: capital first, then by
-// population. A country already at its target is left exactly as it is.
+// Capital first, then by population. See THIN_BELOW above.
 let nonCurated = 0;
 const topUp = []; // [cc, before, after] for SHOW_TOPUP=1
 for (const c of index) {
   const data = byCountry.get(c.c);
-  if (!data) continue;
+  if (!data || NEVER_TOUCHED.has(c.c)) continue;
   const real = data.rows.filter((r) => !NOT_A_CITY.has(r.fc));
-  const target = Math.min(MAX_LISTED, Math.max(MIN_LISTED, real.filter((r) => r.pop >= TOPUP_BIG_POP).length));
   const before = (listed.get(c.c) || []).length;
-  if (before >= MIN_LISTED || before >= target) continue; // already a real list of its own
+  const thin = before < THIN_BELOW;
+  const minPop = thin ? THIN_MIN_POP : TOPUP_BIG_POP;
+  const bigCount = real.filter((r) => r.pop >= minPop).length;
+  const target = thin ? Math.max(MIN_LISTED, bigCount) : Math.min(MAX_LISTED, Math.max(MIN_LISTED, bigCount));
+  if (before >= target) continue;
   // "Bahrain" / "Vietnam" as a city is the whole country: the capital replaces it.
   const isWholeCountry = (e) => e.row && e.row === data.capital && norm(e.name) === norm(c.n);
   const entries = (listed.get(c.c) || []).filter((e) => !isWholeCountry(e));
   // Skip a city the list already has, by its own name or by another one ("Bombay" = Mumbai).
   const taken = new Set(entries.flatMap((e) => [norm(e.name), e.row && norm(e.row.name)]).filter(Boolean));
   const original = new Set(entries.map((e) => e.row).filter(Boolean));
-  const candidates = [data.capital, ...real.slice().sort((a, b) => b.pop - a.pop).filter((r) => r.pop >= TOPUP_MIN_POP)];
+  const candidates = [data.capital, ...real.slice().sort((a, b) => b.pop - a.pop).filter((r) => r.pop >= minPop)];
   for (const r of candidates) {
     if (entries.length >= target) break;
     // Plain letters: "Can Tho", not "Cần Thơ". GeoNames writes the Vietnamese đ as "GJ".
@@ -324,6 +341,10 @@ for (const c of index) {
     if (!key || taken.has(key) || taken.has(norm(r.name)) || original.has(r)) continue;
     entries.push({ group: c.n, name, row: r });
     taken.add(key);
+  }
+  // A long list is split by state / province so it can be browsed.
+  if (thin && entries.length >= GROUP_FROM) {
+    for (const e of entries) e.group = (e.row && admin1Label.get(`${c.c}.${e.row.admin1}`)) || c.n;
   }
   listed.set(c.c, entries);
   nonCurated += entries.length - before;
