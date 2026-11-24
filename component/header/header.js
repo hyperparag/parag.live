@@ -1,14 +1,22 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import ThemeToggle from "../ThemeToggle";
+import LanguageSwitcher from "../translate/LanguageSwitcher";
 
 const Header = () => {
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { data: session } = useSession();
+
+  // The language picker lives in this header, so hide the floating one while
+  // the header is on the page (see `.lang-float` in globals.css).
+  useEffect(() => {
+    document.documentElement.setAttribute("data-has-header", "");
+    return () => document.documentElement.removeAttribute("data-has-header");
+  }, []);
 
   const logout = () => {
     setMobileOpen(false);
@@ -82,6 +90,7 @@ const Header = () => {
               {router.query.state} / {router.query.post}
             </span>
           )}
+          <LanguageSwitcher inline />
           <ThemeToggle />
           <Link href='/user/post'>
             <button
@@ -268,6 +277,27 @@ const Header = () => {
               Theme
             </span>
             <ThemeToggle />
+          </div>
+
+          {/* Language row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "8px 0",
+            }}
+          >
+            <span
+              style={{
+                color: "var(--text-secondary)",
+                fontSize: "0.875rem",
+                fontWeight: 500,
+              }}
+            >
+              Language
+            </span>
+            <LanguageSwitcher inline />
           </div>
 
           <Link href='/user/post' onClick={() => setMobileOpen(false)}>

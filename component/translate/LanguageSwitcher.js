@@ -81,9 +81,12 @@ function loadWidget() {
 
 /**
  * `compact` renders a small "Translate" select for post and blog pages.
- * Without it, a floating language button is shown on every page.
+ * `inline` renders just the select, for the header (desktop nav and mobile menu).
+ * Without either, a floating language button is shown. Pages that have the
+ * header hide it (see `.lang-float` in globals.css), so it no longer sits on top
+ * of the scroll-to-top button; it only stays on pages without a header.
  */
-const LanguageSwitcher = ({ compact = false }) => {
+const LanguageSwitcher = ({ compact = false, inline = false }) => {
   const [current, setCurrent] = useState("");
 
   useEffect(() => {
@@ -139,9 +142,11 @@ const LanguageSwitcher = ({ compact = false }) => {
     );
   }
 
+  if (inline) return select;
+
   return (
     <div
-      className='notranslate'
+      className='notranslate lang-float'
       style={{ position: "fixed", right: 12, bottom: 12, zIndex: 50 }}
     >
       {select}

@@ -683,6 +683,12 @@ th {
   color: var(--text-secondary);
 }
 
+/* The floating language button is replaced by the one in the header (set by
+   header.js), so it does not cover the scroll-to-top button. */
+html[data-has-header] .lang-float .themed-select {
+  display: none;
+}
+
 /* ═══════════════════════════════════════════
    SCROLL TO TOP
    ═══════════════════════════════════════════ */
