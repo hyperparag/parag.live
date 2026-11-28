@@ -23,7 +23,7 @@ export default function Home() {
         <title> Parag - Live Classifieds Directory </title>
         <meta
           name='description'
-          content='Parag is a live classifieds directory featuring legal betting, an open community, casual dating, a B2B marketplace, and service listings.'
+          content='Parag is a live classifieds directory featuring an open community, casual dating, a B2B marketplace, and services listing.'
         />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link
