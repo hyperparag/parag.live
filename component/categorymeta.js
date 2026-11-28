@@ -3,19 +3,19 @@
 const COPY = {
   Community: {
     what: "community groups, events and local news",
-    keywords: "community, local groups, events, volunteers, activities",
+    keywords: "community, local groups, events, volunteers, activities, classes, workshops, lost and found, rideshare, local announcements, activities, musicians, artists, support groups, neighborhood",
   },
   Dating: {
     what: "dating and friendship",
-    keywords: "dating, friendship, meet people, relationships",
+    keywords: "dating, friendship, meet people, relationships, personals, singles, local singles, activity partners, companionship, casual dating, social meetup, networking",
   },
   Marketplace: {
     what: "things to buy and sell",
-    keywords: "buy and sell, marketplace, for sale, used goods, electronics",
+    keywords: "buy and sell, marketplace, for sale, used goods, electronics, real estate, housing, apartments for rent, rooms for rent, cars and vehicles, motorcycles, furniture, appliances, free stuff, secondhand",
   },
   Services: {
     what: "local and professional services",
-    keywords: "local services, professional services, lessons, repairs",
+    keywords: "local services, professional services, lessons, repairs, jobs, gigs, hiring, home repair, cleaning, moving, tutoring, beauty and wellness, automotive repair, freelance, skilled trades, plumbing, electrical",
   },
 };
 
